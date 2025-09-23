@@ -29,7 +29,7 @@ export default function StockTransferForm() {
     const fetchData = async () => {
       try {
         const [productsResponse, warehousesResponse] = await Promise.all([
-          productService.getProducts({ page: 1, page_size: 1000 }),
+          productService.getProducts({ page: 1, page_size: 20 }),
           warehouseService.getWarehouses()
         ]);
         setProducts(productsResponse.items);

@@ -6,8 +6,56 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 import { Package, BarChart3, ArrowRightLeft, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { productService, stockMovementService, stockTransferService } from '@/lib/services';
+import toast from 'react-hot-toast';
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalMovements: 0,
+    pendingTransfers: 0,
+    lowStockItems: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        // Get all products to check for low stock
+        const allProductsRes = await productService.getProducts({ page: 1, page_size: 20 });
+        const lowStockCount = allProductsRes.items.filter(product => 
+          (product.total_stock || 0) < 10
+        ).length;
+
+        // Get total counts using search parameters
+        const [productsRes, movementsRes, transfersRes] = await Promise.all([
+          productService.getProducts({ page: 1, page_size: 1 }), // Just to get total count
+          stockMovementService.getStockMovements({ page: 1, page_size: 1 }), // Just to get total count
+          stockTransferService.getStockTransfers({ 
+            page: 1, 
+            page_size: 1,
+            search: 'status:pending' // Using search to filter pending transfers
+          })
+        ]);
+
+        setStats({
+          totalProducts: productsRes.total,
+          totalMovements: movementsRes.total,
+          pendingTransfers: transfersRes.total,
+          lowStockItems: lowStockCount
+        });
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        toast.error('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
   return (
     <AuthProvider>
       <ProtectedRoute>
@@ -36,7 +84,9 @@ export default function DashboardPage() {
                       <dt className="text-sm font-medium text-gray-500 truncate">
                         Total Products
                       </dt>
-                      <dd className="text-lg font-medium text-gray-900">-</dd>
+                      <dd className="text-lg font-medium text-gray-900">
+                        {loading ? '-' : stats.totalProducts}
+                      </dd>
                     </dl>
                   </div>
                 </div>
@@ -61,7 +111,9 @@ export default function DashboardPage() {
                       <dt className="text-sm font-medium text-gray-500 truncate">
                         Stock Movements
                       </dt>
-                      <dd className="text-lg font-medium text-gray-900">-</dd>
+                      <dd className="text-lg font-medium text-gray-900">
+                        {loading ? '-' : stats.totalMovements}
+                      </dd>
                     </dl>
                   </div>
                 </div>
@@ -86,7 +138,9 @@ export default function DashboardPage() {
                       <dt className="text-sm font-medium text-gray-500 truncate">
                         Pending Transfers
                       </dt>
-                      <dd className="text-lg font-medium text-gray-900">-</dd>
+                      <dd className="text-lg font-medium text-gray-900">
+                        {loading ? '-' : stats.pendingTransfers}
+                      </dd>
                     </dl>
                   </div>
                 </div>
@@ -111,7 +165,9 @@ export default function DashboardPage() {
                       <dt className="text-sm font-medium text-gray-500 truncate">
                         Low Stock Items
                       </dt>
-                      <dd className="text-lg font-medium text-gray-900">-</dd>
+                      <dd className="text-lg font-medium text-gray-900">
+                        {loading ? '-' : stats.lowStockItems}
+                      </dd>
                     </dl>
                   </div>
                 </div>

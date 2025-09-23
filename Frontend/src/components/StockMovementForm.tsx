@@ -30,13 +30,29 @@ export default function StockMovementForm() {
     const fetchData = async () => {
       try {
         const [productsResponse, warehousesResponse] = await Promise.all([
-          productService.getProducts({ page: 1, page_size: 1000 }),
+          productService.getProducts({ page: 1, page_size: 20}),
           warehouseService.getWarehouses()
         ]);
+        
+        console.log('Products response:', productsResponse);
+        console.log('Warehouses response:', warehousesResponse);
+        
+        if (!productsResponse?.items) {
+          throw new Error('Products data is invalid');
+        }
+        
+        if (!Array.isArray(warehousesResponse)) {
+          throw new Error('Warehouses data is invalid');
+        }
+        
         setProducts(productsResponse.items);
         setWarehouses(warehousesResponse);
+        
+        console.log('Set products:', productsResponse.items.length);
+        console.log('Set warehouses:', warehousesResponse.length);
       } catch (error) {
-        toast.error('Failed to load form data');
+        console.error('Error fetching data:', error);
+        toast.error(error instanceof Error ? error.message : 'Failed to load form data');
       } finally {
         setLoadingData(false);
       }
