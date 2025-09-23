@@ -29,11 +29,13 @@ cd Backend
 # (optional) source .venv/bin/activate
 pip install -r requirements.txt
 # create and configure your PostgreSQL DB, then
+source .venv/bin/activate
 python scripts/setup_database.py
-uvicorn main:app --reload
+python main:app 
 
 # Terminal B: start frontend
 cd Frontend
+npm run build
 npm install
 cp .env.local.example .env.local
 # change API_URL inside .env.local if needed
