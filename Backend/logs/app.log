@@ -3340,3 +3340,4 @@ FROM stock_movements
 WHERE stock_movements.product_id = %(product_id_1)s
 2025-09-23 19:26:27,601 - sqlalchemy.engine.Engine - INFO - [cached since 197.3s ago] {'coalesce_2': 0, 'product_id_1': 1}
 2025-09-23 19:26:27,606 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-23 19:31:44,566 - watchfiles.main - INFO - 1 change detected
