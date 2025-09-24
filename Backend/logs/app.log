@@ -20199,3 +20199,4 @@ WHERE users.id = %(pk_1)s
 2025-09-24 11:57:50,650 - watchfiles.main - INFO - 1 change detected
 2025-09-24 11:58:30,567 - watchfiles.main - INFO - 1 change detected
 2025-09-24 11:58:32,881 - watchfiles.main - INFO - 1 change detected
+2025-09-24 12:41:03,594 - watchfiles.main - INFO - 1 change detected

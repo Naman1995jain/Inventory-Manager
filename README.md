@@ -17,7 +17,7 @@ This repository contains two main folders: `Backend/` and `Frontend/`.
 
 Below is the database diagram showing the main tables and relationships used by the application. The image file is located at `images/database.png` in the `Backend` folder.
 
-![Database Schema](Backend/images/database.png)
+![Database Schema](images/database.png)
 
 Key entities:
 - `products`: product catalog and attributes
@@ -27,6 +27,14 @@ Key entities:
 - `users`: application users and authentication data
 
 This diagram helps visualize foreign keys and cardinality between tables (for example, each `stock_movement` links to a `product` and a `warehouse`). Use this when reviewing or extending the database schema.
+
+## 🔁 Application Flow
+
+The diagram below illustrates the high-level flow between the Frontend, Backend (FastAPI) and the Database. It highlights where authentication happens, where product CRUD and stock movements are processed, and how transfers propagate between warehouses. The image file is located at `images/Flow.png`.
+
+![Application Flow](images/Flow.png)
+
+This flow diagram is helpful for new contributors and reviewers to quickly understand request paths, authentication, and how inventory changes travel through the system.
 
 ## Quick start (development)
 
