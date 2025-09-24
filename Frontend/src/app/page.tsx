@@ -5,18 +5,15 @@ import { useAuth } from '@/context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import Landing from '@/components/Landing';
 
 function HomeContent() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        router.push('/dashboard');
-      } else {
-        router.push('/login');
-      }
+    if (!isLoading && isAuthenticated) {
+      router.push('/dashboard');
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -32,15 +29,16 @@ function HomeContent() {
     );
   }
 
+  // If not authenticated, show landing page
+  if (!isAuthenticated) {
+    return <Landing />;
+  }
+
+  // If authenticated, show a brief redirect message while navigation happens
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Inventory Management System
-        </h1>
-        <p className="text-lg text-gray-600">
-          Redirecting...
-        </p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Redirecting to dashboard...</h1>
       </div>
     </div>
   );

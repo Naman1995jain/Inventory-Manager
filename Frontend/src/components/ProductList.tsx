@@ -101,8 +101,51 @@ export default function ProductList() {
         </form>
       </div>
 
-      {/* Products Table */}
+      {/* Products Table for md+ and Card list for small screens */}
       <div className="mt-8 flex flex-col">
+        {/* Mobile: card list */}
+        <div className="space-y-4 md:hidden">
+          {isLoading ? (
+            <div className="bg-white px-6 py-20 rounded-lg shadow">
+              <div className="text-center">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                <p className="mt-2 text-sm text-gray-500">Loading products...</p>
+              </div>
+            </div>
+          ) : (
+            products.map((product) => (
+              <div key={product.id} className="bg-white shadow rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-gray-900 truncate">{product.name}</div>
+                    <div className="mt-1 text-sm text-gray-500 truncate">{product.description || 'No description'}</div>
+                    <div className="mt-2 flex items-center text-sm text-gray-500 space-x-3">
+                      <div>SKU: <span className="text-gray-700">{product.sku}</span></div>
+                      <div>Price: <span className="text-gray-700">{product.unit_price ? `$${product.unit_price}` : '-'}</span></div>
+                    </div>
+                  </div>
+                  <div className="ml-4 flex-shrink-0 flex flex-col items-end space-y-2">
+                    <div>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        (product.total_stock || 0) > 10 
+                          ? 'bg-green-100 text-green-800'
+                          : (product.total_stock || 0) > 0
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {product.total_stock || 0}
+                      </span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Link href={`/products/${product.id}`} className="text-indigo-600 hover:text-indigo-900">View</Link>
+                      <Link href={`/products/${product.id}/edit`} className="text-indigo-600 hover:text-indigo-900">Edit</Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
@@ -114,7 +157,7 @@ export default function ProductList() {
                   </div>
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-gray-300">
+                <table className="min-w-full divide-y divide-gray-300 hidden md:table">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
