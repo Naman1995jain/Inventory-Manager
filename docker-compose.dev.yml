@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # Development overrides for backend service
+  backend:
+    environment:
+      DEBUG: true
+    volumes:
+      # Mount source code for development
+      - ./Backend:/app
+      - /app/__pycache__
+    command: ["python", "main.py"]
+
+  # Development overrides for frontend service  
+  frontend:
+    volumes:
+      # Mount source code for development
+      - ./Frontend:/app
+      - /app/.next
+      - /app/node_modules
+    command: ["npm", "run", "dev"]
+    environment:
+      NODE_ENV: development
+
+  # Include pgAdmin by default in development
+  pgadmin:
+    profiles: []
