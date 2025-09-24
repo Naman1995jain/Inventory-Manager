@@ -12,6 +12,22 @@ A full-stack Inventory Management application:
 
 This repository contains two main folders: `Backend/` and `Frontend/`.
 
+
+## 🗄️ Database Schema
+
+Below is the database diagram showing the main tables and relationships used by the application. The image file is located at `images/database.png` in the `Backend` folder.
+
+![Database Schema](Backend/images/database.png)
+
+Key entities:
+- `products`: product catalog and attributes
+- `warehouses`: storage locations
+- `stock_movements`: immutable ledger of inventory changes (purchases, sales, adjustments)
+- `stock_transfers`: transfers between warehouses, referencing related movements
+- `users`: application users and authentication data
+
+This diagram helps visualize foreign keys and cardinality between tables (for example, each `stock_movement` links to a `product` and a `warehouse`). Use this when reviewing or extending the database schema.
+
 ## Quick start (development)
 
 Prerequisites:
@@ -356,21 +372,6 @@ CREATE DATABASE inventory_test_db;
 ```bash
 python scripts/setup_database.py
 ```
-
-## 🗄️ Database Schema
-
-Below is the database diagram showing the main tables and relationships used by the application. The image file is located at `images/database.png` in the `Backend` folder.
-
-![Database Schema](Backend/images/database.png)
-
-Key entities:
-- `products`: product catalog and attributes
-- `warehouses`: storage locations
-- `stock_movements`: immutable ledger of inventory changes (purchases, sales, adjustments)
-- `stock_transfers`: transfers between warehouses, referencing related movements
-- `users`: application users and authentication data
-
-This diagram helps visualize foreign keys and cardinality between tables (for example, each `stock_movement` links to a `product` and a `warehouse`). Use this when reviewing or extending the database schema.
 
 7. Run the development server:
 
