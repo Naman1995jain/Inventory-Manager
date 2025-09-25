@@ -54,8 +54,9 @@ cd Backend
 pip install -r requirements.txt
 # create and configure your PostgreSQL DB, then
 source .venv/bin/activate
+python script/create_databases.py
 python scripts/setup_database.py
-python main:app 
+python main.py
 
 # Terminal B: start frontend
 cd Frontend
