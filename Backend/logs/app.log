@@ -113,3 +113,10 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2025-09-24 13:38:23,538 - app.api.auth - WARNING - Failed login attempt for email user@gmail.com from IP 172.28.0.1
 2025-09-24 13:38:39,248 - app.api.auth - WARNING - Failed login attempt for email user@gmail.com from IP 172.28.0.1
 2025-09-24 13:39:50,344 - app.api.auth - INFO - Successful login for email namanjain34710@gmail.com from IP 172.28.0.1
+2025-09-25 05:11:12,215 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-09-25 05:12:16,816 - app.api.auth - INFO - Successful login for email user@example.com from IP 172.23.0.1
