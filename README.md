@@ -423,6 +423,73 @@ Open the frontend at `http://localhost:3000`.
 - Backend: containerize or run with a production ASGI server (uvicorn/gunicorn) and configure a process manager or container runtime. Configure `CORS` and `SECRET_KEY` properly.
 - Frontend: build with `npm run build` and serve with `npm run start` or deploy to a static hosting provider that supports Next.js.
 
+## 🐳 Docker Deployment
+
+The easiest way to deploy the full application stack is using Docker and Docker Compose.
+
+### Quick Docker Start
+
+For production deployment, use the automated deployment script:
+
+```bash
+./docker-deploy.sh prod
+```
+
+### Manual Docker Commands
+
+Alternatively, you can run Docker Compose manually:
+
+```bash
+# Production mode (default)
+docker-compose up -d
+
+# Development mode with hot-reload
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+# Check status
+docker-compose ps
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Docker Services
+
+The Docker setup includes:
+
+- **Backend API** (port 8000): FastAPI application with automatic database initialization
+- **Frontend** (port 3000): Next.js application with optimized production build
+- **PostgreSQL** (port 5432): Database with persistent storage
+- **pgAdmin** (port 8080): Database administration tool (optional, for development)
+
+### Environment Configuration
+
+1. Copy the environment template:
+   ```bash
+   cp .env.template .env
+   ```
+
+2. Edit `.env` with your configuration:
+   ```bash
+   nano .env
+   ```
+
+3. **Important**: Change the default passwords and secret keys before production deployment!
+
+### Access Points
+
+After deployment, access your application at:
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs
+- **pgAdmin** (development): http://localhost:8080
+
+For detailed Docker deployment instructions, troubleshooting, and advanced configuration, see [DOCKER-DEPLOYMENT.md](DOCKER-DEPLOYMENT.md).
+
 ## Tests
 
 Backend tests use `pytest`. From the `Backend/` folder run:
