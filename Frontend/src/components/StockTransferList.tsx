@@ -3,18 +3,25 @@
 import React, { useState, useEffect } from 'react';
 import { StockTransfer, StockTransferListResponse } from '@/types';
 import { stockTransferService } from '@/lib/services';
+import { useAuth } from '@/context/AuthContext';
 import { Search, Plus, ArrowRight, CheckCircle, XCircle, Clock, ArrowRightLeft } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
 export default function StockTransferList() {
+  const { user } = useAuth();
   const [transfers, setTransfers] = useState<StockTransfer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
+  // Helper function to check if current user can edit this transfer
+  const canEditTransfer = (transfer: StockTransfer) => {
+    return user && transfer.created_by === user.id;
+  };
 
   const fetchTransfers = async () => {
     try {
@@ -249,6 +256,9 @@ export default function StockTransferList() {
                     Created
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Creator
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -307,23 +317,47 @@ export default function StockTransferList() {
                       <div>{format(new Date(transfer.created_at), 'MMM dd, yyyy')}</div>
                       <div className="text-xs">{format(new Date(transfer.created_at), 'HH:mm')}</div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {canEditTransfer(transfer) ? (
+                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                          You
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                          Other User
+                        </span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       {transfer.status === 'pending' && (
                         <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleCompleteTransfer(transfer.id)}
-                            className="text-green-600 hover:text-green-700 transition-colors duration-150"
-                            title="Complete Transfer"
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleCancelTransfer(transfer.id)}
-                            className="text-red-600 hover:text-red-700 transition-colors duration-150"
-                            title="Cancel Transfer"
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </button>
+                          {canEditTransfer(transfer) ? (
+                            <>
+                              <button
+                                onClick={() => handleCompleteTransfer(transfer.id)}
+                                className="text-green-600 hover:text-green-700 transition-colors duration-150"
+                                title="Complete Transfer"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleCancelTransfer(transfer.id)}
+                                className="text-red-600 hover:text-red-700 transition-colors duration-150"
+                                title="Cancel Transfer"
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-gray-300 cursor-not-allowed" title="You can only complete your own transfers">
+                                <CheckCircle className="h-4 w-4" />
+                              </span>
+                              <span className="text-gray-300 cursor-not-allowed" title="You can only cancel your own transfers">
+                                <XCircle className="h-4 w-4" />
+                              </span>
+                            </>
+                          )}
                         </div>
                       )}
                       {transfer.status === 'completed' && transfer.completed_at && (

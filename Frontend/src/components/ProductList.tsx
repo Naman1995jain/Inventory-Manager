@@ -3,17 +3,24 @@
 import React, { useState, useEffect } from 'react';
 import { Product, ProductListResponse } from '@/types';
 import { productService } from '@/lib/services';
+import { useAuth } from '@/context/AuthContext';
 import { Search, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
 export default function ProductList() {
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
+  // Helper function to check if current user can edit this product
+  const canEditProduct = (product: Product) => {
+    return user && product.created_by === user.id;
+  };
 
   const fetchProducts = async () => {
     try {
@@ -138,7 +145,12 @@ export default function ProductList() {
                     </div>
                     <div className="flex space-x-2">
                       <Link href={`/products/${product.id}`} className="text-indigo-600 hover:text-indigo-900">View</Link>
-                      <Link href={`/products/${product.id}/edit`} className="text-indigo-600 hover:text-indigo-900">Edit</Link>
+                      {canEditProduct(product) && (
+                        <Link href={`/products/${product.id}/edit`} className="text-indigo-600 hover:text-indigo-900">Edit</Link>
+                      )}
+                      {!canEditProduct(product) && (
+                        <span className="text-gray-400 cursor-not-allowed">Edit</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -177,6 +189,9 @@ export default function ProductList() {
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Owner
                       </th>
                       <th className="relative px-6 py-3">
                         <span className="sr-only">Actions</span>
@@ -225,26 +240,53 @@ export default function ProductList() {
                             {product.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {canEditProduct(product) ? (
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                              You
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                              Other User
+                            </span>
+                          )}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex space-x-2">
                             <Link
                               href={`/products/${product.id}`}
                               className="text-indigo-600 hover:text-indigo-900"
+                              title="View Product"
                             >
                               <Eye className="h-4 w-4" />
                             </Link>
-                            <Link
-                              href={`/products/${product.id}/edit`}
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Link>
-                            <button
-                              onClick={() => handleDelete(product.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                            {canEditProduct(product) ? (
+                              <>
+                                <Link
+                                  href={`/products/${product.id}/edit`}
+                                  className="text-indigo-600 hover:text-indigo-900"
+                                  title="Edit Product"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Link>
+                                <button
+                                  onClick={() => handleDelete(product.id)}
+                                  className="text-red-600 hover:text-red-900"
+                                  title="Delete Product"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-gray-300 cursor-not-allowed" title="You can only edit your own products">
+                                  <Edit className="h-4 w-4" />
+                                </span>
+                                <span className="text-gray-300 cursor-not-allowed" title="You can only delete your own products">
+                                  <Trash2 className="h-4 w-4" />
+                                </span>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>

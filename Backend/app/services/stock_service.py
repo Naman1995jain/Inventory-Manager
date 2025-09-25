@@ -10,7 +10,7 @@ class StockService:
         self.db = db
     
     def create_stock_movement(self, movement_data: StockMovementCreate, user_id: int) -> StockMovement:
-        """Create a new stock movement"""
+        """Create a new stock movement with proper quantity handling based on movement type"""
         # Validate product and warehouse exist
         product = self.db.query(Product).filter(
             and_(Product.id == movement_data.product_id, Product.is_active == True)
@@ -24,22 +24,32 @@ class StockService:
         if not warehouse:
             raise ValueError("Warehouse not found or inactive")
         
+        # Calculate the actual quantity based on movement type
+        actual_quantity = self._calculate_movement_quantity(
+            movement_data.movement_type, 
+            movement_data.quantity
+        )
+        
         # For outbound movements, check if sufficient stock is available
-        if movement_data.quantity < 0:
+        if actual_quantity < 0:
             current_stock = self.get_product_stock_in_warehouse(
                 movement_data.product_id, 
                 movement_data.warehouse_id
             )
-            if current_stock + movement_data.quantity < 0:
-                raise ValueError(f"Insufficient stock. Available: {current_stock}, Requested: {abs(movement_data.quantity)}")
+            if current_stock + actual_quantity < 0:
+                raise ValueError(f"Insufficient stock. Available: {current_stock}, Requested: {abs(actual_quantity)}")
         
-        # Calculate total cost
+        # Calculate total cost using absolute quantity
         total_cost = None
         if movement_data.unit_cost is not None:
-            total_cost = movement_data.unit_cost * abs(movement_data.quantity)
+            total_cost = movement_data.unit_cost * abs(actual_quantity)
+        
+        # Create movement with calculated quantity
+        movement_dict = movement_data.model_dump()
+        movement_dict['quantity'] = actual_quantity
         
         db_movement = StockMovement(
-            **movement_data.model_dump(),
+            **movement_dict,
             total_cost=total_cost,
             created_by=user_id
         )
@@ -48,6 +58,44 @@ class StockService:
         self.db.commit()
         self.db.refresh(db_movement)
         return db_movement
+    
+    def _calculate_movement_quantity(self, movement_type: MovementType, input_quantity: int) -> int:
+        """
+        Calculate the actual quantity for stock movement based on movement type.
+        
+        Business Logic:
+        - Inbound movements (PURCHASE, RETURN, TRANSFER_IN): Always positive (add to inventory)
+        - Outbound movements (SALE, DAMAGED, TRANSFER_OUT): Always negative (subtract from inventory)  
+        - ADJUSTMENT: Preserves sign from input (can be positive or negative)
+        
+        Args:
+            movement_type: The type of movement
+            input_quantity: The quantity entered by user (should always be positive except for adjustments)
+            
+        Returns:
+            The calculated quantity with proper sign for inventory calculation
+        """
+        # Use absolute value to ensure we work with positive numbers for most cases
+        abs_quantity = abs(input_quantity)
+        
+        # Define inbound movement types (add to inventory)
+        inbound_types = {MovementType.PURCHASE, MovementType.RETURN, MovementType.TRANSFER_IN}
+        
+        # Define outbound movement types (subtract from inventory)
+        outbound_types = {MovementType.SALE, MovementType.DAMAGED, MovementType.TRANSFER_OUT}
+        
+        if movement_type in inbound_types:
+            # Inbound movements are always positive
+            return abs_quantity
+        elif movement_type in outbound_types:
+            # Outbound movements are always negative
+            return -abs_quantity
+        elif movement_type == MovementType.ADJUSTMENT:
+            # Adjustments preserve the original sign (can be positive or negative)
+            return input_quantity
+        else:
+            # Default case (should not happen with current enum)
+            raise ValueError(f"Unknown movement type: {movement_type}")
     
     def get_product_stock_in_warehouse(self, product_id: int, warehouse_id: int) -> int:
         """Get current stock of a product in a specific warehouse"""
@@ -169,23 +217,25 @@ class StockService:
             raise ValueError(f"Insufficient stock in source warehouse. Available: {current_stock}, Required: {transfer.quantity}")
         
         try:
-            # Create outbound movement from source warehouse
+            # Create outbound movement from source warehouse using proper quantity calculation
+            outbound_quantity = self._calculate_movement_quantity(MovementType.TRANSFER_OUT, transfer.quantity)
             outbound_movement = StockMovement(
                 product_id=transfer.product_id,
                 warehouse_id=transfer.from_warehouse_id,
                 movement_type=MovementType.TRANSFER_OUT,
-                quantity=-transfer.quantity,  # Negative for outbound
+                quantity=outbound_quantity,
                 reference_number=f"TRANSFER-{transfer.id}",
                 notes=f"Transfer to warehouse {transfer.to_warehouse_id}: {transfer.notes or ''}",
                 created_by=user_id
             )
             
-            # Create inbound movement to destination warehouse
+            # Create inbound movement to destination warehouse using proper quantity calculation
+            inbound_quantity = self._calculate_movement_quantity(MovementType.TRANSFER_IN, transfer.quantity)
             inbound_movement = StockMovement(
                 product_id=transfer.product_id,
                 warehouse_id=transfer.to_warehouse_id,
                 movement_type=MovementType.TRANSFER_IN,
-                quantity=transfer.quantity,  # Positive for inbound
+                quantity=inbound_quantity,
                 reference_number=f"TRANSFER-{transfer.id}",
                 notes=f"Transfer from warehouse {transfer.from_warehouse_id}: {transfer.notes or ''}",
                 created_by=user_id

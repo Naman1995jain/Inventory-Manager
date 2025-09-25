@@ -81,12 +81,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Store token
       Cookies.set('token', tokenResponse.access_token, { expires: 7 }); // 7 days
       
-      // For now, we'll store basic user info. In a real app, you might want to fetch user details
-      const userData: User = {
-        id: 0, // You might want to decode this from JWT or fetch from a separate endpoint
-        email: credentials.email,
-        created_at: new Date().toISOString(),
-      };
+      // Decode JWT to extract user information
+      let userData: User;
+      try {
+        // Basic JWT decoding (payload is the middle part)
+        const jwtPayload = JSON.parse(atob(tokenResponse.access_token.split('.')[1]));
+        
+        // Extract user information from JWT payload
+        userData = {
+          id: jwtPayload.user_id || 0,
+          email: credentials.email,
+          created_at: new Date().toISOString(),
+        };
+      } catch (jwtError) {
+        // Fallback if JWT decoding fails
+        userData = {
+          id: 0,
+          email: credentials.email,
+          created_at: new Date().toISOString(),
+        };
+      }
       
       Cookies.set('user', JSON.stringify(userData), { expires: 7 });
       setUser(userData);

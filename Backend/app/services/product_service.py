@@ -68,9 +68,13 @@ class ProductService:
             ]
         }
     
-    def get_products(self, params: PaginationParams) -> Tuple[List[Product], int]:
+    def get_products(self, params: PaginationParams, owner_id: Optional[int] = None) -> Tuple[List[Product], int]:
         """Get paginated list of products with stock information"""
         query = self.db.query(Product).filter(Product.is_active == True)
+        
+        # Filter by owner if specified
+        if owner_id is not None:
+            query = query.filter(Product.created_by == owner_id)
         
         # Apply search filter
         if params.search:

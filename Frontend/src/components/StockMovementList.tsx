@@ -3,18 +3,25 @@
 import React, { useState, useEffect } from 'react';
 import { StockMovement, StockMovementListResponse, MovementType } from '@/types';
 import { stockMovementService } from '@/lib/services';
+import { useAuth } from '@/context/AuthContext';
 import { Search, Plus, TrendingUp, TrendingDown } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
 export default function StockMovementList() {
+  const { user } = useAuth();
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
+  // Helper function to check if current user can edit this movement
+  const canEditMovement = (movement: StockMovement) => {
+    return user && movement.created_by === user.id;
+  };
 
   const fetchMovements = async () => {
     try {
@@ -157,6 +164,9 @@ export default function StockMovementList() {
                         Reference
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Creator
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Notes
                       </th>
                     </tr>
@@ -195,6 +205,17 @@ export default function StockMovementList() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {movement.reference_number || '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {canEditMovement(movement) ? (
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                              You
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                              Other User
+                            </span>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {movement.notes || '-'}

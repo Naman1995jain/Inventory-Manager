@@ -39,6 +39,11 @@ export const productService = {
     return response.data;
   },
 
+  async getOwnedProducts(params: Partial<PaginationParams> = {}): Promise<ProductListResponse> {
+    const response = await api.get<ProductListResponse>('/products/owned', { params });
+    return response.data;
+  },
+
   async getProduct(id: number): Promise<ProductWithStock> {
     const response = await api.get<ProductWithStock>(`/products/${id}`);
     return response.data;

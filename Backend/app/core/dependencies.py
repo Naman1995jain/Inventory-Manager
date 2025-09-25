@@ -16,7 +16,14 @@ def get_current_user(
     token = credentials.credentials
     token_data = verify_token(token)
     
-    user = db.query(User).filter(User.email == token_data["email"]).first()
+    # Try to find user by user_id first (if available), then by email
+    user = None
+    if token_data.get("user_id"):
+        user = db.query(User).filter(User.id == token_data["user_id"]).first()
+    
+    if not user:
+        user = db.query(User).filter(User.email == token_data["email"]).first()
+    
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

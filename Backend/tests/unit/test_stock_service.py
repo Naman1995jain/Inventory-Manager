@@ -425,3 +425,494 @@ class TestStockService:
         # Act & Assert
         with pytest.raises(ValueError, match="Only pending transfers can be cancelled"):
             stock_service.cancel_stock_transfer(transfer_id)
+
+    # Tests for new quantity calculation logic
+    def test_calculate_movement_quantity_purchase(self, stock_service, mock_db):
+        """Test quantity calculation for PURCHASE movement - should be positive"""
+        # Act
+        result = stock_service._calculate_movement_quantity(MovementType.PURCHASE, 10)
+        
+        # Assert
+        assert result == 10  # Purchase should add to inventory (positive)
+
+    def test_calculate_movement_quantity_sale(self, stock_service, mock_db):
+        """Test quantity calculation for SALE movement - should be negative"""
+        # Act
+        result = stock_service._calculate_movement_quantity(MovementType.SALE, 10)
+        
+        # Assert
+        assert result == -10  # Sale should subtract from inventory (negative)
+
+    def test_calculate_movement_quantity_return(self, stock_service, mock_db):
+        """Test quantity calculation for RETURN movement - should be positive"""
+        # Act
+        result = stock_service._calculate_movement_quantity(MovementType.RETURN, 5)
+        
+        # Assert
+        assert result == 5  # Return should add to inventory (positive)
+
+    def test_calculate_movement_quantity_damaged(self, stock_service, mock_db):
+        """Test quantity calculation for DAMAGED movement - should be negative"""
+        # Act
+        result = stock_service._calculate_movement_quantity(MovementType.DAMAGED, 3)
+        
+        # Assert
+        assert result == -3  # Damaged should subtract from inventory (negative)
+
+    def test_calculate_movement_quantity_transfer_in(self, stock_service, mock_db):
+        """Test quantity calculation for TRANSFER_IN movement - should be positive"""
+        # Act
+        result = stock_service._calculate_movement_quantity(MovementType.TRANSFER_IN, 15)
+        
+        # Assert
+        assert result == 15  # Transfer in should add to inventory (positive)
+
+    def test_calculate_movement_quantity_transfer_out(self, stock_service, mock_db):
+        """Test quantity calculation for TRANSFER_OUT movement - should be negative"""
+        # Act
+        result = stock_service._calculate_movement_quantity(MovementType.TRANSFER_OUT, 8)
+        
+        # Assert
+        assert result == -8  # Transfer out should subtract from inventory (negative)
+
+    def test_calculate_movement_quantity_adjustment_positive(self, stock_service, mock_db):
+        """Test quantity calculation for ADJUSTMENT movement with positive value"""
+        # Act
+        result = stock_service._calculate_movement_quantity(MovementType.ADJUSTMENT, 7)
+        
+        # Assert
+        assert result == 7  # Positive adjustment should preserve sign
+
+    def test_calculate_movement_quantity_adjustment_negative(self, stock_service, mock_db):
+        """Test quantity calculation for ADJUSTMENT movement with negative value"""
+        # Act
+        result = stock_service._calculate_movement_quantity(MovementType.ADJUSTMENT, -12)
+        
+        # Assert
+        assert result == -12  # Negative adjustment should preserve sign
+
+    def test_calculate_movement_quantity_with_negative_input(self, stock_service, mock_db):
+        """Test that inbound movements convert negative input to positive"""
+        # Act
+        result = stock_service._calculate_movement_quantity(MovementType.PURCHASE, -5)
+        
+        # Assert
+        assert result == 5  # Should use absolute value for inbound movements
+
+    def test_create_stock_movement_with_sale_logic(self, stock_service, mock_db):
+        """Test stock movement creation with SALE type uses correct quantity calculation"""
+        # Arrange
+        movement_data = StockMovementCreate(
+            product_id=1,
+            warehouse_id=1,
+            movement_type=MovementType.SALE,
+            quantity=10,  # Input positive quantity
+            unit_cost=5.0,
+            reference_number="SALE001"
+        )
+        user_id = 1
+
+        # Mock product and warehouse exist
+        mock_product = Mock(spec=Product)
+        mock_product.is_active = True
+        mock_warehouse = Mock(spec=Warehouse)
+        mock_warehouse.is_active = True
+
+        # Mock current stock check (sufficient stock available)
+        with patch.object(stock_service, 'get_product_stock_in_warehouse', return_value=50):
+            def mock_query_side_effect(model):
+                mock_query = Mock()
+                mock_filter = Mock()
+                mock_query.filter.return_value = mock_filter
+                
+                if model == Product:
+                    mock_filter.first.return_value = mock_product
+                elif model == Warehouse:
+                    mock_filter.first.return_value = mock_warehouse
+                return mock_query
+
+            mock_db.query.side_effect = mock_query_side_effect
+
+            # Mock new movement creation
+            mock_new_movement = Mock(spec=StockMovement)
+            mock_db.add.return_value = None
+            mock_db.commit.return_value = None
+            mock_db.refresh.return_value = None
+
+            # Act
+            with patch('app.services.stock_service.StockMovement') as mock_movement_model:
+                mock_movement_model.return_value = mock_new_movement
+                result = stock_service.create_stock_movement(movement_data, user_id)
+
+                # Assert - verify the movement was created with negative quantity for sale
+                call_args = mock_movement_model.call_args[1]  # Get keyword arguments
+                assert call_args['quantity'] == -10  # Should be negative for sale
+                assert call_args['total_cost'] == 50.0  # unit_cost * abs(quantity)
+                assert call_args['created_by'] == user_id
+
+    def test_create_stock_movement_insufficient_stock_for_sale(self, stock_service, mock_db):
+        """Test stock movement creation fails when insufficient stock for sale"""
+        # Arrange
+        movement_data = StockMovementCreate(
+            product_id=1,
+            warehouse_id=1,
+            movement_type=MovementType.SALE,
+            quantity=100,  # More than available
+            reference_number="SALE002"
+        )
+        user_id = 1
+
+        # Mock product and warehouse exist
+        mock_product = Mock(spec=Product)
+        mock_product.is_active = True
+        mock_warehouse = Mock(spec=Warehouse)
+        mock_warehouse.is_active = True
+
+        # Mock current stock check (insufficient stock)
+        with patch.object(stock_service, 'get_product_stock_in_warehouse', return_value=50):
+            def mock_query_side_effect(model):
+                mock_query = Mock()
+                mock_filter = Mock()
+                mock_query.filter.return_value = mock_filter
+                
+                if model == Product:
+                    mock_filter.first.return_value = mock_product
+                elif model == Warehouse:
+                    mock_filter.first.return_value = mock_warehouse
+                return mock_query
+
+            mock_db.query.side_effect = mock_query_side_effect
+
+            # Act & Assert
+            with pytest.raises(ValueError, match="Insufficient stock"):
+                stock_service.create_stock_movement(movement_data, user_id)
+
+
+@pytest.mark.unit  
+class TestStockServiceQuantityCalculation:
+    """Test suite for the new quantity calculation logic in StockService"""
+
+    @pytest.fixture
+    def mock_db(self):
+        """Mock database session"""
+        return Mock(spec=Session)
+
+    @pytest.fixture
+    def stock_service(self, mock_db):
+        """Create StockService instance with mock database"""
+        return StockService(mock_db)
+
+    def test_calculate_movement_quantity_purchase_positive(self, stock_service):
+        """Test PURCHASE movement type makes quantity positive"""
+        result = stock_service._calculate_movement_quantity(MovementType.PURCHASE, 10)
+        assert result == 10
+
+    def test_calculate_movement_quantity_purchase_negative_input(self, stock_service):
+        """Test PURCHASE movement type makes even negative input positive"""
+        result = stock_service._calculate_movement_quantity(MovementType.PURCHASE, -10)
+        assert result == 10
+
+    def test_calculate_movement_quantity_sale_positive_input(self, stock_service):
+        """Test SALE movement type makes positive input negative"""
+        result = stock_service._calculate_movement_quantity(MovementType.SALE, 10)
+        assert result == -10
+
+    def test_calculate_movement_quantity_sale_negative_input(self, stock_service):
+        """Test SALE movement type keeps negative input negative"""
+        result = stock_service._calculate_movement_quantity(MovementType.SALE, -10)
+        assert result == -10
+
+    def test_calculate_movement_quantity_return_positive(self, stock_service):
+        """Test RETURN movement type makes quantity positive"""
+        result = stock_service._calculate_movement_quantity(MovementType.RETURN, 5)
+        assert result == 5
+
+    def test_calculate_movement_quantity_return_negative_input(self, stock_service):
+        """Test RETURN movement type makes negative input positive"""
+        result = stock_service._calculate_movement_quantity(MovementType.RETURN, -5)
+        assert result == 5
+
+    def test_calculate_movement_quantity_damaged_positive_input(self, stock_service):
+        """Test DAMAGED movement type makes positive input negative"""
+        result = stock_service._calculate_movement_quantity(MovementType.DAMAGED, 3)
+        assert result == -3
+
+    def test_calculate_movement_quantity_damaged_negative_input(self, stock_service):
+        """Test DAMAGED movement type keeps negative input negative"""
+        result = stock_service._calculate_movement_quantity(MovementType.DAMAGED, -3)
+        assert result == -3
+
+    def test_calculate_movement_quantity_transfer_in_positive(self, stock_service):
+        """Test TRANSFER_IN movement type makes quantity positive"""
+        result = stock_service._calculate_movement_quantity(MovementType.TRANSFER_IN, 8)
+        assert result == 8
+
+    def test_calculate_movement_quantity_transfer_in_negative_input(self, stock_service):
+        """Test TRANSFER_IN movement type makes negative input positive"""
+        result = stock_service._calculate_movement_quantity(MovementType.TRANSFER_IN, -8)
+        assert result == 8
+
+    def test_calculate_movement_quantity_transfer_out_positive_input(self, stock_service):
+        """Test TRANSFER_OUT movement type makes positive input negative"""
+        result = stock_service._calculate_movement_quantity(MovementType.TRANSFER_OUT, 6)
+        assert result == -6
+
+    def test_calculate_movement_quantity_transfer_out_negative_input(self, stock_service):
+        """Test TRANSFER_OUT movement type keeps negative input negative"""
+        result = stock_service._calculate_movement_quantity(MovementType.TRANSFER_OUT, -6)
+        assert result == -6
+
+    def test_calculate_movement_quantity_adjustment_positive(self, stock_service):
+        """Test ADJUSTMENT movement type preserves positive input"""
+        result = stock_service._calculate_movement_quantity(MovementType.ADJUSTMENT, 7)
+        assert result == 7
+
+    def test_calculate_movement_quantity_adjustment_negative(self, stock_service):
+        """Test ADJUSTMENT movement type preserves negative input"""
+        result = stock_service._calculate_movement_quantity(MovementType.ADJUSTMENT, -7)
+        assert result == -7
+
+    def test_calculate_movement_quantity_adjustment_zero(self, stock_service):
+        """Test ADJUSTMENT movement type preserves zero input"""
+        result = stock_service._calculate_movement_quantity(MovementType.ADJUSTMENT, 0)
+        assert result == 0
+
+    @patch.object(StockService, 'get_product_stock_in_warehouse')
+    def test_create_stock_movement_with_quantity_calculation(self, mock_get_stock, stock_service, mock_db):
+        """Test that create_stock_movement correctly applies quantity calculation for SALE"""
+        # Arrange
+        movement_data = StockMovementCreate(
+            product_id=1,
+            warehouse_id=1,
+            movement_type=MovementType.SALE,
+            quantity=10,  # User enters positive quantity
+            unit_cost=5.0,
+            reference_number="SALE001"
+        )
+        user_id = 1
+
+        # Mock product and warehouse exist
+        mock_product = Mock(spec=Product)
+        mock_product.is_active = True
+        mock_warehouse = Mock(spec=Warehouse)
+        mock_warehouse.is_active = True
+
+        # Mock current stock is sufficient
+        mock_get_stock.return_value = 15  # More than the 10 we want to sell
+
+        # Setup mock query responses
+        def mock_query_side_effect(model):
+            if model == Product:
+                mock_query = Mock()
+                mock_filter = Mock()
+                mock_query.filter.return_value = mock_filter
+                mock_filter.first.return_value = mock_product
+                return mock_query
+            elif model == Warehouse:
+                mock_query = Mock()
+                mock_filter = Mock()
+                mock_query.filter.return_value = mock_filter
+                mock_filter.first.return_value = mock_warehouse
+                return mock_query
+            return Mock()
+
+        mock_db.query.side_effect = mock_query_side_effect
+
+        # Mock movement creation
+        mock_new_movement = Mock(spec=StockMovement)
+        mock_db.add.return_value = None
+        mock_db.commit.return_value = None
+        mock_db.refresh.return_value = None
+
+        # Act
+        with patch('app.services.stock_service.StockMovement') as mock_movement_model:
+            mock_movement_model.return_value = mock_new_movement
+            result = stock_service.create_stock_movement(movement_data, user_id)
+
+        # Assert - verify that the quantity was made negative for SALE movement
+        expected_call_kwargs = {
+            'product_id': 1,
+            'warehouse_id': 1,
+            'movement_type': MovementType.SALE,
+            'quantity': -10,  # Should be negative for SALE
+            'unit_cost': 5.0,
+            'reference_number': 'SALE001',
+            'notes': '',
+            'total_cost': 50.0,  # unit_cost * abs(quantity)
+            'created_by': user_id
+        }
+        mock_movement_model.assert_called_once_with(**expected_call_kwargs)
+        assert result == mock_new_movement
+
+    def test_calculate_movement_quantity_purchase(self, stock_service):
+        """Test quantity calculation for purchase movements (should be positive)"""
+        result = stock_service._calculate_movement_quantity(MovementType.PURCHASE, 10)
+        assert result == 10  # Purchase adds to inventory
+
+    def test_calculate_movement_quantity_sale(self, stock_service):
+        """Test quantity calculation for sale movements (should be negative)"""
+        result = stock_service._calculate_movement_quantity(MovementType.SALE, 10)
+        assert result == -10  # Sale subtracts from inventory
+
+    def test_calculate_movement_quantity_return(self, stock_service):
+        """Test quantity calculation for return movements (should be positive)"""
+        result = stock_service._calculate_movement_quantity(MovementType.RETURN, 5)
+        assert result == 5  # Return adds to inventory
+
+    def test_calculate_movement_quantity_damaged(self, stock_service):
+        """Test quantity calculation for damaged movements (should be negative)"""
+        result = stock_service._calculate_movement_quantity(MovementType.DAMAGED, 3)
+        assert result == -3  # Damaged subtracts from inventory
+
+    def test_calculate_movement_quantity_transfer_in(self, stock_service):
+        """Test quantity calculation for transfer in movements (should be positive)"""
+        result = stock_service._calculate_movement_quantity(MovementType.TRANSFER_IN, 8)
+        assert result == 8  # Transfer in adds to inventory
+
+    def test_calculate_movement_quantity_transfer_out(self, stock_service):
+        """Test quantity calculation for transfer out movements (should be negative)"""
+        result = stock_service._calculate_movement_quantity(MovementType.TRANSFER_OUT, 12)
+        assert result == -12  # Transfer out subtracts from inventory
+
+    def test_calculate_movement_quantity_adjustment_positive(self, stock_service):
+        """Test quantity calculation for positive adjustment movements"""
+        result = stock_service._calculate_movement_quantity(MovementType.ADJUSTMENT, 7)
+        assert result == 7  # Positive adjustment adds to inventory
+
+    def test_calculate_movement_quantity_adjustment_negative(self, stock_service):
+        """Test quantity calculation for negative adjustment movements"""
+        result = stock_service._calculate_movement_quantity(MovementType.ADJUSTMENT, -4)
+        assert result == -4  # Negative adjustment subtracts from inventory
+
+    def test_calculate_movement_quantity_handles_negative_input_for_outbound(self, stock_service):
+        """Test that outbound movements handle negative input correctly (convert to absolute then make negative)"""
+        # Even if user enters -10 for a sale, it should still be -10 (negative for outbound)
+        result = stock_service._calculate_movement_quantity(MovementType.SALE, -10)
+        assert result == -10  # Still negative for outbound
+
+    def test_calculate_movement_quantity_handles_negative_input_for_inbound(self, stock_service):
+        """Test that inbound movements handle negative input correctly (convert to absolute then make positive)"""
+        # Even if user enters -10 for a purchase, it should be 10 (positive for inbound)
+        result = stock_service._calculate_movement_quantity(MovementType.PURCHASE, -10)
+        assert result == 10  # Converted to positive for inbound
+
+    def test_create_stock_movement_with_sale_applies_correct_quantity(self, stock_service, mock_db):
+        """Test that sale movements apply negative quantity correctly"""
+        # Arrange
+        movement_data = StockMovementCreate(
+            product_id=1,
+            warehouse_id=1,
+            movement_type=MovementType.SALE,
+            quantity=5,  # User enters positive 5
+            unit_cost=10.0,
+            reference_number="SALE001"
+        )
+        user_id = 1
+
+        # Setup mocks for valid product and warehouse
+        mock_product = Mock(spec=Product)
+        mock_product.is_active = True
+        mock_warehouse = Mock(spec=Warehouse)
+        mock_warehouse.is_active = True
+
+        def mock_query_side_effect(model):
+            if model == Product:
+                mock_query = Mock()
+                mock_filter = Mock()
+                mock_query.filter.return_value = mock_filter
+                mock_filter.first.return_value = mock_product
+                return mock_query
+            elif model == Warehouse:
+                mock_query = Mock()
+                mock_filter = Mock()
+                mock_query.filter.return_value = mock_filter
+                mock_filter.first.return_value = mock_warehouse
+                return mock_query
+            return Mock()
+
+        mock_db.query.side_effect = mock_query_side_effect
+
+        # Mock sufficient stock check
+        with patch.object(stock_service, 'get_product_stock_in_warehouse', return_value=10):
+            mock_new_movement = Mock(spec=StockMovement)
+            mock_db.add.return_value = None
+            mock_db.commit.return_value = None
+            mock_db.refresh.return_value = None
+
+            # Act
+            with patch('app.services.stock_service.StockMovement') as mock_movement_model:
+                mock_movement_model.return_value = mock_new_movement
+                result = stock_service.create_stock_movement(movement_data, user_id)
+
+                # Assert that the movement was created with negative quantity for sale
+                expected_call_kwargs = {
+                    'product_id': 1,
+                    'warehouse_id': 1,
+                    'movement_type': MovementType.SALE,
+                    'quantity': -5,  # Should be negative for sale
+                    'unit_cost': 10.0,
+                    'reference_number': 'SALE001',
+                    'notes': '',
+                    'total_cost': 50.0,
+                    'created_by': user_id
+                }
+                mock_movement_model.assert_called_once_with(**expected_call_kwargs)
+
+    def test_create_stock_movement_with_purchase_applies_correct_quantity(self, stock_service, mock_db):
+        """Test that purchase movements apply positive quantity correctly"""
+        # Arrange
+        movement_data = StockMovementCreate(
+            product_id=1,
+            warehouse_id=1,
+            movement_type=MovementType.PURCHASE,
+            quantity=8,  # User enters positive 8
+            unit_cost=15.0,
+            reference_number="PO001"
+        )
+        user_id = 1
+
+        # Setup mocks for valid product and warehouse
+        mock_product = Mock(spec=Product)
+        mock_product.is_active = True
+        mock_warehouse = Mock(spec=Warehouse)
+        mock_warehouse.is_active = True
+
+        def mock_query_side_effect(model):
+            if model == Product:
+                mock_query = Mock()
+                mock_filter = Mock()
+                mock_query.filter.return_value = mock_filter
+                mock_filter.first.return_value = mock_product
+                return mock_query
+            elif model == Warehouse:
+                mock_query = Mock()
+                mock_filter = Mock()
+                mock_query.filter.return_value = mock_filter
+                mock_filter.first.return_value = mock_warehouse
+                return mock_query
+            return Mock()
+
+        mock_db.query.side_effect = mock_query_side_effect
+        mock_new_movement = Mock(spec=StockMovement)
+        mock_db.add.return_value = None
+        mock_db.commit.return_value = None
+        mock_db.refresh.return_value = None
+
+        # Act
+        with patch('app.services.stock_service.StockMovement') as mock_movement_model:
+            mock_movement_model.return_value = mock_new_movement
+            result = stock_service.create_stock_movement(movement_data, user_id)
+
+            # Assert that the movement was created with positive quantity for purchase
+            expected_call_kwargs = {
+                'product_id': 1,
+                'warehouse_id': 1,
+                'movement_type': MovementType.PURCHASE,
+                'quantity': 8,  # Should remain positive for purchase
+                'unit_cost': 15.0,
+                'reference_number': 'PO001',
+                'notes': '',
+                'total_cost': 120.0,
+                'created_by': user_id
+            }
+            mock_movement_model.assert_called_once_with(**expected_call_kwargs)

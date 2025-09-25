@@ -4,6 +4,7 @@ from typing import Optional
 from datetime import datetime
 from app.core.database import get_database
 from app.core.dependencies import get_current_active_user
+from app.core.permissions import OwnershipValidator
 from app.services.product_service import ProductService
 from app.schemas.schemas import (
     Product, ProductCreate, ProductUpdate, ProductWithStock,
@@ -69,6 +70,44 @@ async def list_products(
         total_pages=total_pages
     )
 
+@router.get("/owned", response_model=ProductListResponse)
+async def list_owned_products(
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+    sort_by: Optional[str] = Query(
+        None, 
+        pattern="^(name_asc|name_desc|stock_asc|stock_desc|created_asc|created_desc)$",
+        description="Sort by field and direction"
+    ),
+    search: Optional[str] = Query(None, max_length=100, description="Search term"),
+    created_from_date: Optional[datetime] = Query(None, description="Filter from date"),
+    created_to_date: Optional[datetime] = Query(None, description="Filter to date"),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_database)
+):
+    """Get paginated list of products owned by current user"""
+    product_service = ProductService(db)
+    
+    params = PaginationParams(
+        page=page,
+        page_size=page_size,
+        sort_by=sort_by,
+        search=search,
+        created_from_date=created_from_date,
+        created_to_date=created_to_date
+    )
+    
+    products, total = product_service.get_products(params, owner_id=current_user.id)
+    total_pages = math.ceil(total / page_size)
+    
+    return ProductListResponse(
+        items=[Product.model_validate(product) for product in products],
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages
+    )
+
 @router.get("/{product_id}", response_model=ProductWithStock)
 async def get_product(
     product_id: int,
@@ -100,7 +139,10 @@ async def update_product(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_database)
 ):
-    """Update product metadata"""
+    """Update product metadata - only owner can update"""
+    # Check ownership before allowing update
+    OwnershipValidator.ensure_product_edit_permission(db, product_id, current_user)
+    
     product_service = ProductService(db)
     
     try:
@@ -123,7 +165,10 @@ async def delete_product(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_database)
 ):
-    """Soft delete a product"""
+    """Soft delete a product - only owner can delete"""
+    # Check ownership before allowing delete
+    OwnershipValidator.ensure_product_edit_permission(db, product_id, current_user)
+    
     product_service = ProductService(db)
     
     success = product_service.delete_product(product_id)

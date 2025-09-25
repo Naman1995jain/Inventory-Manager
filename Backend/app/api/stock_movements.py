@@ -4,6 +4,7 @@ from typing import Optional
 from datetime import datetime
 from app.core.database import get_database
 from app.core.dependencies import get_current_active_user
+from app.core.permissions import OwnershipValidator
 from app.services.stock_service import StockService
 from app.schemas.schemas import (
     StockMovement, StockMovementCreate, StockMovementListResponse,
@@ -19,7 +20,10 @@ async def create_stock_movement(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_database)
 ):
-    """Record a stock movement (purchase, sale, adjustment, etc.)"""
+    """Record a stock movement (purchase, sale, adjustment, etc.) - only for owned products"""
+    # Check if user owns the product before allowing stock movement
+    OwnershipValidator.ensure_product_edit_permission(db, movement_data.product_id, current_user)
+    
     stock_service = StockService(db)
     
     try:
