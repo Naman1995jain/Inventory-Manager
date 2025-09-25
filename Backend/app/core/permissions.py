@@ -8,7 +8,11 @@ class OwnershipValidator:
     
     @staticmethod
     def can_edit_product(db: Session, product_id: int, current_user: User) -> bool:
-        """Check if user can edit a product (only owner can edit)"""
+        """Check if user can edit a product (owner or admin can edit)"""
+        # Admin can edit any product
+        if current_user.is_admin:
+            return True
+            
         product = db.query(Product).filter(Product.id == product_id).first()
         if not product:
             return False
@@ -16,7 +20,11 @@ class OwnershipValidator:
     
     @staticmethod
     def can_edit_stock_movement(db: Session, movement_id: int, current_user: User) -> bool:
-        """Check if user can edit a stock movement (only owner can edit)"""
+        """Check if user can edit a stock movement (owner or admin can edit)"""
+        # Admin can edit any stock movement
+        if current_user.is_admin:
+            return True
+            
         movement = db.query(StockMovement).filter(StockMovement.id == movement_id).first()
         if not movement:
             return False
@@ -24,7 +32,11 @@ class OwnershipValidator:
     
     @staticmethod
     def can_edit_stock_transfer(db: Session, transfer_id: int, current_user: User) -> bool:
-        """Check if user can edit a stock transfer (only owner can edit)"""
+        """Check if user can edit a stock transfer (owner or admin can edit)"""
+        # Admin can edit any stock transfer
+        if current_user.is_admin:
+            return True
+            
         transfer = db.query(StockTransfer).filter(StockTransfer.id == transfer_id).first()
         if not transfer:
             return False

@@ -51,6 +51,24 @@ init_database() {
         exit 1
     fi
     
+    # Run add admin column script
+    echo "📋 Running add_admin_column.py..."
+    if python scripts/add_admin_column.py; then
+        echo "✅ Admin column addition completed"
+    else
+        echo "❌ Admin column addition failed"
+        exit 1
+    fi
+    
+    # Run create admin user script
+    echo "📋 Running create_admin_user.py..."
+    if python scripts/create_admin_user.py; then
+        echo "✅ Admin user creation completed"
+    else
+        echo "❌ Admin user creation failed"
+        exit 1
+    fi
+    
     echo "🎉 Database initialization completed successfully!"
 }
 

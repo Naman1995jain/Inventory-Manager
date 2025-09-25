@@ -19,7 +19,8 @@ export default function ProductList() {
 
   // Helper function to check if current user can edit this product
   const canEditProduct = (product: Product) => {
-    return user && product.created_by === user.id;
+    // Admin can edit any product, regular users can only edit their own
+    return user && (user.is_admin || product.created_by === user.id);
   };
 
   const fetchProducts = async () => {

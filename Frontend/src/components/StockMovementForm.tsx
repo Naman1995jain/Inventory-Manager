@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Save, Package, Warehouse as WarehouseIcon, DollarSign, FileText, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 export default function StockMovementForm() {
   const [formData, setFormData] = useState<StockMovementCreate>({
@@ -25,12 +26,17 @@ export default function StockMovementForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const router = useRouter();
+  // Get user from auth context at the top level
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Use getProducts for admin users, getOwnedProducts for regular users
         const [productsResponse, warehousesResponse] = await Promise.all([
-          productService.getOwnedProducts({ page: 1, page_size: 100}),
+          user?.is_admin 
+            ? productService.getProducts({ page: 1, page_size: 100})
+            : productService.getOwnedProducts({ page: 1, page_size: 100}),
           warehouseService.getWarehouses()
         ]);
         

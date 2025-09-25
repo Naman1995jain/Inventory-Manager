@@ -34,13 +34,14 @@ def verify_token(token: str) -> dict:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         email: str = payload.get("sub")
         user_id: int = payload.get("user_id")
+        is_admin: bool = payload.get("is_admin", False)
         if email is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Could not validate credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return {"email": email, "user_id": user_id}
+        return {"email": email, "user_id": user_id, "is_admin": is_admin}
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

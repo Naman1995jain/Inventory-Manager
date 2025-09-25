@@ -31,7 +31,9 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    return UserSchema.model_validate(user)
+    # Convert to schema and ensure is_admin is set correctly
+    user_schema = UserSchema.model_validate(user)
+    return user_schema
 
 def get_current_active_user(
     current_user: UserSchema = Depends(get_current_user)

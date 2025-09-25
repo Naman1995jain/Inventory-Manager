@@ -15,6 +15,7 @@ class UserInDB(UserBase):
     model_config = ConfigDict(from_attributes=True)
     
     id: int
+    is_admin: bool = False
     created_at: datetime
 
 class User(UserInDB):

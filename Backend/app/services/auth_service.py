@@ -20,9 +20,14 @@ class UserService:
         
         # Create new user
         hashed_password = get_password_hash(user_data.password)
+        
+        # Set admin status for specific email
+        is_admin = user_data.email == "namanjain34710@gmail.com"
+        
         db_user = User(
             email=user_data.email,
-            hashed_password=hashed_password
+            hashed_password=hashed_password,
+            is_admin=is_admin
         )
         
         self.db.add(db_user)

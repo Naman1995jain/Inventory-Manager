@@ -91,6 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         userData = {
           id: jwtPayload.user_id || 0,
           email: credentials.email,
+          is_admin: jwtPayload.is_admin || false,
           created_at: new Date().toISOString(),
         };
       } catch (jwtError) {
