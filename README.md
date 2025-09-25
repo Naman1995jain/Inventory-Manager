@@ -573,12 +573,6 @@ For detailed testing documentation, setup instructions, and best practices, see:
 - **[Backend/pytest.ini](Backend/pytest.ini)** - Pytest configuration  
 - **[Backend/conftest.py](Backend/conftest.py)** - Test fixtures and setup
 
-### Frontend Testing
-
-Frontend testing setup is available for extension:
-- **Recommended**: Jest + React Testing Library + Testing Library for user interactions
-- **Coverage**: Component rendering, user interactions, API integration  
-- **Setup**: `npm install --save-dev @testing-library/react jest jest-environment-jsdom`
 
 ## Environment Variables
 
