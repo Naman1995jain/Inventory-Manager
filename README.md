@@ -133,6 +133,7 @@ CREATE DATABASE inventory_test_db;
 5. Initialize DB (script provided):
 
 ```bash
+python scripts/create_databases.py
 python scripts/setup_database.py
 ```
 
@@ -152,7 +153,7 @@ cd Backend
 pytest -v
 
 # run with explicit host/port
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+python main.py
 ```
 
 ## Frontend — Setup and run (detailed)
@@ -342,82 +343,6 @@ Root contains two folders: `Backend/` and `Frontend/`.
 - PostgreSQL 12+
 - Git
 
-## Setup and Run
-
-Below are minimal steps to get the full stack running locally.
-
-### Backend (development)
-
-1. Open a terminal and go to the backend folder:
-
-```bash
-cd Backend
-```
-
-2. (Optional) Activate the provided virtual environment if present:
-
-```bash
-source .venv/bin/activate
-```
-
-3. Install Python dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-4. Create PostgreSQL databases (example names used by the project):
-
-```sql
-CREATE DATABASE inventory_db;
-CREATE DATABASE inventory_test_db;
-```
-
-5. Configure `.env` (Backend/.env). Example entries are included in `Backend/README.md` — ensure `DATABASE_URL`, `SECRET_KEY`, and `API_PORT` are set.
-
-6. Initialize or migrate the database (project includes `scripts/setup_database.py`):
-
-```bash
-python scripts/setup_database.py
-```
-
-7. Run the development server:
-
-```bash
-uvicorn main:app --reload
-```
-
-The API will be available at `http://localhost:8000` and Swagger UI at `http://localhost:8000/docs`.
-
-### Frontend (development)
-
-1. Open a terminal and go to the frontend folder:
-
-```bash
-cd Frontend
-```
-
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Copy or create your environment file for the frontend:
-
-```bash
-cp .env.local.example .env.local
-# Edit .env.local and set API_URL (e.g. API_URL=http://localhost:8000/api/v1)
-```
-
-4. Start the frontend dev server:
-
-```bash
-npm run dev
-```
-
-Open the frontend at `http://localhost:3000`.
-
 ## Running in Production
 
 - Backend: containerize or run with a production ASGI server (uvicorn/gunicorn) and configure a process manager or container runtime. Configure `CORS` and `SECRET_KEY` properly.
@@ -534,7 +459,3 @@ Visit the running server's `/docs` to view the full OpenAPI docs.
 2. Create a feature branch
 3. Implement your changes and add tests
 4. Open a pull request
-
-## License
-
-This project is provided under the MIT License.
