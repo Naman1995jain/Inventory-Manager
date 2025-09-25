@@ -12,6 +12,9 @@ python-dateutil
 email-validator
 pytest
 pytest-asyncio
+pytest-cov
+pytest-xdist
 httpx
 requests
 dotenv
+coverage

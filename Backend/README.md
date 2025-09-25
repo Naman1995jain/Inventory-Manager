@@ -175,10 +175,8 @@ POST /api/v1/auth/register
 Content-Type: application/json
 
 {
-  "username": "johndoe",
   "email": "john@example.com",
   "password": "securepassword123",
-  "full_name": "John Doe"
 }
 ```
 
@@ -196,8 +194,8 @@ POST /api/v1/auth/login-json
 Content-Type: application/json
 
 {
-  "username": "johndoe",
-  "password": "securepassword123"
+  "email": "john@example.com",
+  "password": "securepassword123",
 }
 ```
 
@@ -250,8 +248,13 @@ Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "name": "Updated Product Name",
-  "unit_price": 1299.99
+  "name": "string",
+  "sku": "string",
+  "description": "string",
+  "unit_price": 0,
+  "unit_of_measure": "string",
+  "category": "string",
+  "is_active": true
 }
 ```
 
