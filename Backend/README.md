@@ -133,6 +133,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 ### 6. Initialize Database
 
 ```bash
+#if you went create database using script then run this cmd 
+python script/create_databases.py
+#then Initialize Database 
 python scripts/setup_database.py
 ```
 
@@ -154,7 +157,7 @@ This diagram helps visualize foreign keys and cardinality between tables (for ex
 ### 7. Run the Application
 
 ```bash
-uvicorn main:app --reload
+python main.py
 ```
 
 The API will be available at:
