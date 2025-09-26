@@ -158,6 +158,26 @@ class StockTransfer(StockTransferInDB):
     to_warehouse: Optional[Warehouse] = None
     creator: Optional[User] = None
 
+
+# Scraped data schemas
+class ScrapDataBase(BaseModel):
+    product_name: str
+    product_description: Optional[str] = None
+    category: Optional[str] = None
+    price: Optional[Decimal] = None
+    rating: Optional[str] = None
+    image_url: Optional[str] = None
+    product_page_url: Optional[str] = None
+
+class ScrapDataInDB(ScrapDataBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    scraped_at: datetime
+
+class ScrapData(ScrapDataInDB):
+    pass
+
 # Pagination Schema
 class PaginationParams(BaseModel):
     page: int = Field(1, ge=1)

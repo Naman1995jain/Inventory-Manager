@@ -25,3 +25,6 @@ echo "Creating/updating admin user..."
 python create_admin_user.py
 
 echo "Admin setup completed successfully!"
+
+echo "Starting initial scrape and storing data..."
+python scrape_and_store.py || echo "Scrape failed or skipped"

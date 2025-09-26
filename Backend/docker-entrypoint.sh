@@ -68,7 +68,15 @@ init_database() {
         echo "❌ Admin user creation failed"
         exit 1
     fi
-    
+
+    echo "📋 Running scrape_and_store.py..."
+    if python scripts/scrape_and_store.py; then
+        echo "✅ Scraping and storing completed"
+    else
+        echo "❌ Scraping and storing failed"
+        exit 1
+    fi
+
     echo "🎉 Database initialization completed successfully!"
 }
 

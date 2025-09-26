@@ -104,3 +104,18 @@ class StockTransfer(Base):
     from_warehouse = relationship("Warehouse", foreign_keys=[from_warehouse_id], back_populates="stock_transfers_from")
     to_warehouse = relationship("Warehouse", foreign_keys=[to_warehouse_id], back_populates="stock_transfers_to")
     creator = relationship("User")
+
+
+class ScrapData(Base):
+    """Model to store scraped product data from external sites"""
+    __tablename__ = "scrapdata"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_name = Column(String(300), nullable=False, index=True)
+    product_description = Column(Text, nullable=True)
+    category = Column(String(150), nullable=True, index=True)
+    price = Column(Numeric(10, 2), nullable=True)
+    rating = Column(String(50), nullable=True)
+    image_url = Column(String(500), nullable=True)
+    product_page_url = Column(String(1000), nullable=True, unique=False)
+    scraped_at = Column(DateTime(timezone=True), server_default=func.now())

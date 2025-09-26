@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api import auth, products, stock_movements, stock_transfers, warehouses
+from app.api import scraped_products
 from app.core.logger import configure_logging
 import logging
 
@@ -52,6 +53,7 @@ app.include_router(products.router, prefix=settings.API_V1_STR)
 app.include_router(stock_movements.router, prefix=settings.API_V1_STR)
 app.include_router(stock_transfers.router, prefix=settings.API_V1_STR)
 app.include_router(warehouses.router, prefix=settings.API_V1_STR)
+app.include_router(scraped_products.router, prefix=settings.API_V1_STR)
 
 # Global exception handler
 @app.exception_handler(Exception)
