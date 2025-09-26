@@ -7,6 +7,16 @@ const nextConfig = {
   experimental: {
     outputFileTracingRoot: undefined,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'books.toscrape.com',
+        port: '',
+        pathname: '/media/cache/**',
+      },
+    ],
+  },
 }
 
 module.exports = nextConfig
