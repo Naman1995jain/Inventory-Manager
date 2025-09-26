@@ -1136,3 +1136,207 @@ FROM scrapdata ORDER BY scrapdata.scraped_at DESC
  LIMIT %(param_1)s OFFSET %(param_2)s
 2025-09-26 17:21:05,144 - sqlalchemy.engine.Engine - INFO - [cached since 2272s ago] {'param_1': 20, 'param_2': 180}
 2025-09-26 17:21:05,182 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:38:04,867 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:38:04,880 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:38:04,881 - sqlalchemy.engine.Engine - INFO - [cached since 3292s ago] {'param_1': 20, 'param_2': 20}
+2025-09-26 17:38:04,950 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:40:07,925 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:40:07,926 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:40:07,926 - sqlalchemy.engine.Engine - INFO - [cached since 3415s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 17:40:07,942 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:40:07,974 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:40:07,975 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:40:07,976 - sqlalchemy.engine.Engine - INFO - [cached since 3415s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 17:40:08,004 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:42:25,769 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:42:25,771 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:42:25,771 - sqlalchemy.engine.Engine - INFO - [cached since 3553s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 17:42:25,787 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:42:25,869 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:42:25,870 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:42:25,871 - sqlalchemy.engine.Engine - INFO - [cached since 3553s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 17:42:25,899 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:42:57,092 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:42:57,094 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:42:57,094 - sqlalchemy.engine.Engine - INFO - [cached since 3584s ago] {'param_1': 20, 'param_2': 20}
+2025-09-26 17:42:57,107 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:44:39,658 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:44:39,663 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:44:39,664 - sqlalchemy.engine.Engine - INFO - [cached since 3687s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 17:44:39,684 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:44:39,705 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:44:39,709 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:44:39,710 - sqlalchemy.engine.Engine - INFO - [cached since 3687s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 17:44:39,768 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:54:14,686 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:54:14,703 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:54:14,705 - sqlalchemy.engine.Engine - INFO - [cached since 4262s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 17:54:14,752 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:54:16,698 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:54:16,700 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:54:16,700 - sqlalchemy.engine.Engine - INFO - [cached since 4264s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 17:54:16,725 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:54:33,732 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:54:33,733 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:54:33,733 - sqlalchemy.engine.Engine - INFO - [cached since 4281s ago] {'param_1': 20, 'param_2': 20}
+2025-09-26 17:54:33,760 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:55:47,112 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:55:47,113 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:55:47,113 - sqlalchemy.engine.Engine - INFO - [cached since 4354s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 17:55:47,143 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 17:55:47,191 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 17:55:47,193 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 17:55:47,193 - sqlalchemy.engine.Engine - INFO - [cached since 4354s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 17:55:47,239 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:01:44,251 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:01:44,260 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:01:44,263 - sqlalchemy.engine.Engine - INFO - [cached since 4711s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:01:44,529 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:01:44,759 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:01:44,761 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:01:44,763 - sqlalchemy.engine.Engine - INFO - [cached since 4712s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:01:44,867 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:02:31,134 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:02:31,137 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:02:31,137 - sqlalchemy.engine.Engine - INFO - [cached since 4758s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:02:31,170 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:02:31,185 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:02:31,188 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:02:31,189 - sqlalchemy.engine.Engine - INFO - [cached since 4758s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:02:31,206 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:11:56,955 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:11:56,969 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:11:56,975 - sqlalchemy.engine.Engine - INFO - [cached since 5324s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:11:57,248 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:11:57,285 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:11:57,288 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:11:57,289 - sqlalchemy.engine.Engine - INFO - [cached since 5324s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:11:57,390 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:15:56,167 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:15:56,170 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:15:56,172 - sqlalchemy.engine.Engine - INFO - [cached since 5563s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:15:56,208 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:15:56,244 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:15:56,245 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:15:56,245 - sqlalchemy.engine.Engine - INFO - [cached since 5563s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:15:56,308 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:16:03,491 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:16:03,492 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:16:03,493 - sqlalchemy.engine.Engine - INFO - [cached since 5570s ago] {'param_1': 20, 'param_2': 20}
+2025-09-26 18:16:03,542 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:16:11,423 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:16:11,428 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:16:11,444 - sqlalchemy.engine.Engine - INFO - [cached since 5578s ago] {'param_1': 20, 'param_2': 40}
+2025-09-26 18:16:11,537 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:16:15,071 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:16:15,073 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:16:15,073 - sqlalchemy.engine.Engine - INFO - [cached since 5582s ago] {'param_1': 20, 'param_2': 60}
+2025-09-26 18:16:15,129 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:18:48,508 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:18:48,541 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:18:48,558 - sqlalchemy.engine.Engine - INFO - [cached since 5736s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:18:48,621 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:18:48,707 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:18:48,710 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:18:48,711 - sqlalchemy.engine.Engine - INFO - [cached since 5736s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:18:48,983 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:19:01,090 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:19:01,092 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:19:01,093 - sqlalchemy.engine.Engine - INFO - [cached since 5748s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:19:01,137 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:19:01,271 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:19:01,272 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:19:01,273 - sqlalchemy.engine.Engine - INFO - [cached since 5748s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:19:01,320 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:19:38,144 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:19:38,146 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:19:38,149 - sqlalchemy.engine.Engine - INFO - [cached since 5785s ago] {'param_1': 20, 'param_2': 20}
+2025-09-26 18:19:39,412 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:20:50,543 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:20:50,545 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:20:50,545 - sqlalchemy.engine.Engine - INFO - [cached since 5858s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:20:50,658 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:20:50,680 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:20:50,682 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:20:50,683 - sqlalchemy.engine.Engine - INFO - [cached since 5858s ago] {'param_1': 20, 'param_2': 0}
+2025-09-26 18:20:50,710 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:34:30,476 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:34:30,484 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:34:30,492 - sqlalchemy.engine.Engine - INFO - [cached since 6678s ago] {'param_1': 20, 'param_2': 20}
+2025-09-26 18:34:30,594 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:38:01,246 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:38:01,252 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:38:01,276 - sqlalchemy.engine.Engine - INFO - [cached since 6888s ago] {'param_1': 20, 'param_2': 40}
+2025-09-26 18:38:01,393 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-09-26 18:39:03,779 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-09-26 18:39:03,780 - sqlalchemy.engine.Engine - INFO - SELECT scrapdata.id AS scrapdata_id, scrapdata.product_name AS scrapdata_product_name, scrapdata.product_description AS scrapdata_product_description, scrapdata.category AS scrapdata_category, scrapdata.price AS scrapdata_price, scrapdata.rating AS scrapdata_rating, scrapdata.image_url AS scrapdata_image_url, scrapdata.product_page_url AS scrapdata_product_page_url, scrapdata.scraped_at AS scrapdata_scraped_at 
+FROM scrapdata ORDER BY scrapdata.scraped_at DESC 
+ LIMIT %(param_1)s OFFSET %(param_2)s
+2025-09-26 18:39:03,781 - sqlalchemy.engine.Engine - INFO - [cached since 6951s ago] {'param_1': 20, 'param_2': 60}
+2025-09-26 18:39:03,884 - sqlalchemy.engine.Engine - INFO - ROLLBACK

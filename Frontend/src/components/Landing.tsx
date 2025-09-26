@@ -23,10 +23,10 @@ export default function Landing() {
           <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow">
             <div className="text-center">
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clipRule="evenodd"/>
-                </svg>
+                <svg className="w-8 h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4 3a1 1 0 00-1 1v16a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1H4zm1 2h14v14H5V5z"/>
+                  <path d="M6 7h12v2H6V7zm0 4h12v2H6v-2zm0 4h8v2H6v-2z"/>
+                  </svg>
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Book Collection</h2>
               <p className="text-gray-600 mb-6 text-lg leading-relaxed">
@@ -65,8 +65,9 @@ export default function Landing() {
           <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow">
             <div className="text-center">
               <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732L14.146 12.8l-1.179 4.456a1 1 0 01-1.806.152L9.5 14.866l-1.661 2.542a1 1 0 01-1.806-.152L4.854 12.8 1.5 10.866a1 1 0 010-1.732L4.854 7.2l1.179-4.456A1 1 0 017 2h5z" clipRule="evenodd"/>
+                <svg className="w-8 h-8 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 3a1 1 0 00-1 1v3h14V4a1 1 0 00-1-1H4z"/>
+                  <path d="M3 9v7a1 1 0 001 1h12a1 1 0 001-1V9H3zm3 2h2v3H6v-3zm4 0h2v3h-2v-3zm4 0h2v3h-2v-3z"/>
                 </svg>
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Inventory Management</h2>
