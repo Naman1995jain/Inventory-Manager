@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, and_, or_
 from typing import Optional, List, Tuple
 from datetime import datetime
@@ -70,7 +70,9 @@ class ProductService:
     
     def get_products(self, params: PaginationParams, owner_id: Optional[int] = None) -> Tuple[List[Product], int]:
         """Get paginated list of products with stock information"""
-        query = self.db.query(Product).filter(Product.is_active == True)
+        query = self.db.query(Product).options(
+            joinedload(Product.creator)
+        ).filter(Product.is_active == True)
         
         # Filter by owner if specified
         if owner_id is not None:

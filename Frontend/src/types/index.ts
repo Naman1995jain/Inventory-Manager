@@ -36,6 +36,7 @@ export interface Product {
   updated_at: string;
   created_by?: number;
   total_stock?: number;
+  creator?: User;
 }
 
 export interface ProductCreate {

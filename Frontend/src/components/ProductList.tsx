@@ -130,6 +130,7 @@ export default function ProductList() {
                     <div className="mt-2 flex items-center text-sm text-gray-500 space-x-3">
                       <div>SKU: <span className="text-gray-700">{product.sku}</span></div>
                       <div>Price: <span className="text-gray-700">{product.unit_price ? `$${product.unit_price}` : '-'}</span></div>
+                      <div>Owner: <span className="text-gray-700">{product.creator?.email || 'Unknown'}</span></div>
                     </div>
                   </div>
                   <div className="ml-4 flex-shrink-0 flex flex-col items-end space-y-2">
@@ -242,9 +243,11 @@ export default function ProductList() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {canEditProduct(product) ? (
-                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                              You
+                          {product.creator?.email ? (
+                            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium ${
+                              canEditProduct(product) ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                            } rounded-full`}>
+                              {product.creator.email}
                             </span>
                           ) : (
                             <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">

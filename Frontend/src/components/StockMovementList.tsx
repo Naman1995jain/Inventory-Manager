@@ -207,13 +207,15 @@ export default function StockMovementList() {
                           {movement.reference_number || '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {canEditMovement(movement) ? (
-                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                              You
+                          {movement.creator?.email ? (
+                            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium ${
+                              canEditMovement(movement) ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                            } rounded-full`}>
+                              {movement.creator.email}
                             </span>
                           ) : (
                             <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-                              Other User
+                              Unknown
                             </span>
                           )}
                         </td>

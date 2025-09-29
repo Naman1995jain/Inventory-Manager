@@ -91,6 +91,7 @@ class ProductInDB(ProductBase):
 
 class Product(ProductInDB):
     total_stock: Optional[int] = 0  # Calculated field for total stock across all warehouses
+    creator: Optional[User] = None  # User who created the product
 
 class ProductWithStock(Product):
     warehouse_stock: List["WarehouseStock"] = []
