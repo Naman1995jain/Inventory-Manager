@@ -8,10 +8,15 @@ from sqlalchemy.orm import Session
 from app.models.models import User
 from app.core.security import get_password_hash
 from app.core.database import SessionLocal
+from app.core.config import settings
 
 # Admin user details
-ADMIN_EMAIL = "namanjain34710@gmail.com"
-ADMIN_PASSWORD = "123456789"
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "namanjain34710@gmail.com")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "123456789")
+
+def truncate_password(password: str) -> str:
+    """Truncate password to 72 bytes if necessary"""
+    return password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
 
 def create_admin_user():
     """Create or update admin user with specified email and password"""
@@ -23,12 +28,12 @@ def create_admin_user():
         if user:
             print(f"User with email {ADMIN_EMAIL} already exists. Updating to admin...")
             user.is_admin = True
-            user.hashed_password = get_password_hash(ADMIN_PASSWORD)
+            user.hashed_password = get_password_hash(truncate_password(ADMIN_PASSWORD))
         else:
             print(f"Creating new admin user with email {ADMIN_EMAIL}...")
             user = User(
                 email=ADMIN_EMAIL,
-                hashed_password=get_password_hash(ADMIN_PASSWORD),
+                hashed_password=get_password_hash(truncate_password(ADMIN_PASSWORD)),
                 is_admin=True
             )
             db.add(user)

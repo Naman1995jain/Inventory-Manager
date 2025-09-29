@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models import User
 from app.schemas.schemas import UserCreate
 from app.core.security import get_password_hash, verify_password
+from app.core.config import settings
 from typing import Optional
 
 class UserService:
@@ -21,8 +22,8 @@ class UserService:
         # Create new user
         hashed_password = get_password_hash(user_data.password)
         
-        # Set admin status for specific email
-        is_admin = user_data.email == "namanjain34710@gmail.com"
+        # Set admin status based on configured admin email
+        is_admin = user_data.email == settings.ADMIN_EMAIL
         
         db_user = User(
             email=user_data.email,

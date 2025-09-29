@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Python Backend
 # Stage 1: Base image with dependencies
-FROM python:3.11-slim as base
+FROM python:3.11-slim AS base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     postgresql-client \
     curl \
+    bash \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
@@ -27,22 +28,27 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
 # Stage 2: Production image
-FROM base as production
+FROM base AS production
 
 # Copy application code
 COPY . .
 
-# Create logs directory
-RUN mkdir -p /app/logs && chmod 755 /app/logs
-
 # Create non-root user for security
 RUN groupadd -r appuser && \
-    useradd -r -g appuser -s /bin/false appuser && \
-    chown -R appuser:appuser /app
+    useradd -r -g appuser -s /bin/false appuser
+
+# Create logs directory with proper permissions
+RUN mkdir -p /app/logs && \
+    chown -R appuser:appuser /app && \
+    chmod -R 755 /app && \
+    chmod 777 /app/logs
 
 # Copy and make initialization script executable
-COPY docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
+# Copy entrypoint script
+COPY docker-entrypoint.sh /app/
+# Fix line endings and make executable (in case the script was created on Windows)
+RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && \
+    chmod +x /app/docker-entrypoint.sh
 
 # Switch to non-root user
 USER appuser

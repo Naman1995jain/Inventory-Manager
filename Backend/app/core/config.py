@@ -20,6 +20,7 @@ class Settings:
     
     # Security settings
     BCRYPT_ROUNDS: int = int(os.getenv("BCRYPT_ROUNDS", "12"))
+    ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "namanjain34710@gmail.com")
     
     # API settings
     API_V1_STR: str = "/api/v1"
