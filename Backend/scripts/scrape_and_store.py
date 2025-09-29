@@ -34,12 +34,15 @@ def allowed_by_robots(base_url):
         robots_url = urljoin(base_url, "robots.txt")
         resp = requests.get(robots_url, timeout=10)
         if resp.status_code != 200:
+            # If no robots.txt exists (404) or other error, assume it's allowed
             return True
         content = resp.text.lower()
         # Simple check: if Disallow: / is present, avoid scraping
         return "disallow: /" not in content
-    except Exception:
-        return False
+    except Exception as e:
+        # Log the error but allow scraping if robots.txt can't be fetched
+        logger.warning(f"Error checking robots.txt: {e}")
+        return True
 
 
 def parse_price(text: str) -> Decimal | None:
