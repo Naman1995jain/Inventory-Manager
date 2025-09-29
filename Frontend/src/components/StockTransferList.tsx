@@ -146,7 +146,7 @@ export default function StockTransferList() {
             </div>
             <input
               type="text"
-              className="block w-full pl-10 pr-3 py-3 text-gray-900 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+              className="block w-full pl-10 pr-3 py-3 text-gray-900 border border-gray-300 rounded-xl bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
               placeholder="Search transfers by product, warehouse, or reference..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}

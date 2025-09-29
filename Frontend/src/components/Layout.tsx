@@ -103,7 +103,7 @@ export default function Layout({ children }: LayoutProps) {
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center">
-                  <User className="h-5 w-5 text-gray-400 mr-2" />
+                  <User className={`h-5 w-5 mr-2 ${user?.is_admin ? 'text-red-500' : 'text-gray-400'}`} />
                   <span className="text-sm text-gray-700">{user?.email}</span>
                 </div>
                 <button
@@ -138,7 +138,7 @@ export default function Layout({ children }: LayoutProps) {
               </Link>
               <div className="border-t pt-2">
                 <div className="flex items-center px-2 py-2 text-sm text-gray-700">
-                  <User className="h-4 w-4 mr-2 text-gray-400" /> {user?.email}
+                  <User className={`h-4 w-4 mr-2 ${user?.is_admin ? 'text-red-500' : 'text-gray-400'}`} /> {user?.email}
                 </div>
                 <button onClick={() => { setMobileOpen(false); handleLogout(); }} className="w-full text-left px-2 py-2 text-sm text-red-600 hover:bg-gray-50">
                   Sign out
