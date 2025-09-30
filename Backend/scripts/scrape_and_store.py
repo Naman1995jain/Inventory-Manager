@@ -188,31 +188,9 @@ def scrape_books():
 
 
 def main():
-    print("Starting book scraping process...")
     ok = scrape_books()
     if not ok:
-        print("Scraping failed!")
         sys.exit(1)
-    
-    print("Scraping completed successfully!")
-    
-    # Setup recommendation system after scraping
-    print("\nSetting up recommendation system...")
-    try:
-        from setup_recommendations import setup_recommendation_system
-        setup_success = setup_recommendation_system()
-        
-        if setup_success:
-            print("Recommendation system setup completed!")
-        else:
-            print("Warning: Recommendation system setup failed, but scraping was successful.")
-            print("You can run 'python scripts/setup_recommendations.py' manually later.")
-    except ImportError as e:
-        print(f"Could not import recommendation setup: {e}")
-        print("You can run 'python scripts/setup_recommendations.py' manually later.")
-    except Exception as e:
-        print(f"Error setting up recommendations: {e}")
-        print("You can run 'python scripts/setup_recommendations.py' manually later.")
 
 
 if __name__ == "__main__":
