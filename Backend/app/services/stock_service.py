@@ -9,6 +9,25 @@ class StockService:
     def __init__(self, db: Session):
         self.db = db
     
+    def get_purchase_sale_movements_all(self):
+        """
+        Fetch all purchase and sale movements with quantity and unit cost without pagination
+        """
+        query = self.db.query(
+            StockMovement,
+            Product.name.label('product_name'),
+            Warehouse.name.label('warehouse_name')
+        ).join(
+            Product, StockMovement.product_id == Product.id
+        ).join(
+            Warehouse, StockMovement.warehouse_id == Warehouse.id
+        ).filter(
+            StockMovement.movement_type.in_([MovementType.PURCHASE, MovementType.SALE])
+        ).order_by(StockMovement.created_at.desc())
+
+        movements = query.all()
+        return movements
+
     def create_stock_movement(self, movement_data: StockMovementCreate, user_id: int) -> StockMovement:
         """Create a new stock movement with proper quantity handling based on movement type"""
         # Validate product and warehouse exist

@@ -10,9 +10,40 @@ from app.schemas.schemas import (
     StockMovement, StockMovementCreate, StockMovementListResponse,
     PaginationParams, User
 )
+from typing import List
 import math
 
 router = APIRouter(prefix="/stock-movements", tags=["Stock Movements"])
+
+@router.get("/purchase-sale", response_model=StockMovementListResponse)
+async def list_purchase_sale_movements(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_database)
+):
+    """
+    Fetch all purchase and sale movements with their quantity and unit cost
+    """
+    stock_service = StockService(db)
+    
+    movements = stock_service.get_purchase_sale_movements_all()
+    
+    # Convert SQLAlchemy objects to Pydantic models
+    movement_list = [
+        {
+            **StockMovement.model_validate(movement[0]).model_dump(),
+            "product_name": movement[1],
+            "warehouse_name": movement[2]
+        }
+        for movement in movements
+    ]
+    
+    return {
+        "items": movement_list,
+        "total": len(movement_list),
+        "page": 1,
+        "page_size": len(movement_list),
+        "total_pages": 1
+    }
 
 @router.post("/", response_model=StockMovement, status_code=status.HTTP_201_CREATED)
 async def create_stock_movement(

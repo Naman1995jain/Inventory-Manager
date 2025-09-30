@@ -44,6 +44,83 @@ class TestStockMovementsAPI:
         assert db_movement is not None
         assert db_movement.created_by == test_user.id
 
+    def test_list_purchase_sale_movements(self, authenticated_client: TestClient, db_session, test_product, test_warehouse, test_user):
+        """Test listing purchase and sale movements"""
+        # Arrange
+        # Create a purchase movement
+        purchase_movement = StockMovement(
+            product_id=test_product.id,
+            warehouse_id=test_warehouse.id,
+            movement_type=MovementType.PURCHASE,
+            quantity=100,
+            unit_cost=5.50,
+            total_cost=550.00,
+            reference_number="PO12345",
+            notes="Test purchase",
+            created_by=test_user.id
+        )
+        
+        # Create a sale movement
+        sale_movement = StockMovement(
+            product_id=test_product.id,
+            warehouse_id=test_warehouse.id,
+            movement_type=MovementType.SALE,
+            quantity=-50,
+            unit_cost=7.00,
+            total_cost=350.00,
+            reference_number="SO12345",
+            notes="Test sale",
+            created_by=test_user.id
+        )
+        
+        # Create an adjustment movement (should not be returned in response)
+        adjustment_movement = StockMovement(
+            product_id=test_product.id,
+            warehouse_id=test_warehouse.id,
+            movement_type=MovementType.ADJUSTMENT,
+            quantity=10,
+            unit_cost=5.50,
+            total_cost=55.00,
+            reference_number="ADJ12345",
+            notes="Test adjustment",
+            created_by=test_user.id
+        )
+        
+        db_session.add_all([purchase_movement, sale_movement, adjustment_movement])
+        db_session.commit()
+
+        # Act
+        response = authenticated_client.get("/api/v1/stock-movements/purchase-sale")
+
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Check pagination data
+        assert data["total"] == 2  # Only purchase and sale movements
+        assert data["page"] == 1
+        assert data["size"] == 20
+        assert data["pages"] == 1
+        
+        # Check items
+        items = data["items"]
+        assert len(items) == 2
+        
+        # Verify that only purchase and sale movements are returned
+        movement_types = [item["movement_type"] for item in items]
+        assert all(mt in ["purchase", "sale"] for mt in movement_types)
+        assert "adjustment" not in movement_types
+        
+        # Check data of first movement (should be sale as it's ordered by created_at desc)
+        assert items[0]["quantity"] == -50
+        assert float(items[0]["unit_cost"]) == 7.00
+        assert float(items[0]["total_cost"]) == 350.00
+        assert items[0]["reference_number"] == "SO12345"
+        
+        # Check if product and warehouse names are included
+        assert "product_name" in items[0]
+        assert "warehouse_name" in items[0]
+
     def test_create_stock_movement_invalid_product(self, authenticated_client: TestClient, test_warehouse):
         """Test creating stock movement with invalid product"""
         # Arrange

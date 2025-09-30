@@ -24,12 +24,50 @@ export default function BooksPage() {
   const [page, setPage] = useState(1);
   const [hasMoreBooks, setHasMoreBooks] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  // removed category filter state (categories bar not needed)
+  const [isSearching, setIsSearching] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Handle search on blur
+  const handleSearchBlur = () => {
+    if (searchQuery) {
+      searchBooks(searchQuery);
+    } else {
+      fetchBooks(1, true);
+    }
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const searchBooks = async (query: string) => {
+    try {
+      setLoading(true);
+      setIsSearching(true);
+      const response = await fetch(`http://localhost:8000/api/v1/scraped-products/search?query=${encodeURIComponent(query)}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to search books');
+      }
+      
+      const searchResults = await response.json();
+      setBooks(searchResults);
+      setHasMoreBooks(false); // No pagination in search results
+      setError(null);
+    } catch (err) {
+      setError('Failed to search books. Please try again later.');
+      console.error('Error searching books:', err);
+    } finally {
+      setLoading(false);
+      setIsSearching(false);
+    }
+  };
 
   const fetchBooks = async (pageNum: number = 1, reset: boolean = false) => {
     try {
       setLoading(true);
+      setIsSearching(false);
       const response = await fetch(`http://localhost:8000/api/v1/scraped-products/?page=${pageNum}&page_size=20`);
       
       if (!response.ok) {
@@ -122,30 +160,52 @@ export default function BooksPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
             <div>
-              <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2">
                 Book Collection
               </h1>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 Discover {books.length}+ amazing books across different genres
               </p>
             </div>
             
             {/* Search and Filters */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search books..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2.5 w-full sm:w-64 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                />
-                <svg className="w-5 h-5 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <div className="relative flex-grow sm:flex-grow-0">
+                <div className="relative flex-grow sm:flex-grow-0">
+                  <input
+                    type="text"
+                    placeholder="Search books by title, description, or category..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onBlur={handleSearchBlur}
+                    className="block w-full pl-4 pr-12 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white hover:bg-gray-50 focus:bg-white"
+                    disabled={loading}
+                  />
+                  <button
+                    onClick={handleSearchBlur}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-indigo-600 hover:text-indigo-700 p-1 rounded-full hover:bg-indigo-50 transition-colors"
+                    disabled={loading}
+                    aria-label="Search"
+                  >
+                    <svg 
+                      className="w-5 h-5" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth="2" 
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+                      />
+                    </svg>
+                  </button>
+                </div>
+
               </div>
               
               <div className="flex gap-2">
@@ -178,13 +238,27 @@ export default function BooksPage() {
       {/* Books Display */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading && books.length === 0 ? (
-          <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" : "space-y-4"}>
+          <div className={viewMode === 'grid' ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6" : "space-y-3 sm:space-y-4"}>
             {[...Array(20)].map((_, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-md p-4 animate-pulse">
-                <div className="bg-gray-200 aspect-[3/4] rounded-xl mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded mb-2 w-2/3"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              <div key={index} className={`bg-white rounded-2xl shadow-md ${viewMode === 'grid' ? 'p-2 sm:p-3 md:p-4' : 'p-3 sm:p-4 md:p-6'} animate-pulse`}>
+                {viewMode === 'grid' ? (
+                  <>
+                    <div className="bg-gray-200 aspect-[3/4] rounded-xl mb-2 sm:mb-3 md:mb-4"></div>
+                    <div className="h-3 sm:h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-2 sm:h-3 bg-gray-200 rounded mb-2 w-2/3"></div>
+                    <div className="h-2 sm:h-3 bg-gray-200 rounded w-1/2"></div>
+                  </>
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6">
+                    <div className="w-full sm:w-32 h-48 sm:h-44 bg-gray-200 rounded-xl flex-shrink-0"></div>
+                    <div className="flex-1">
+                      <div className="h-4 sm:h-5 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-3 sm:h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+                      <div className="h-3 bg-gray-200 rounded mb-2 w-2/3"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -201,44 +275,44 @@ export default function BooksPage() {
                 <p className="text-gray-600">Try adjusting your search or filters</p>
               </div>
             ) : viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
                 {filteredBooks.map((book) => (
                   <div
                     key={book.id}
                     className="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 overflow-hidden"
                     onClick={() => setSelectedBook(book)}
                   >
-                    <div className="p-4">
-                      <div className="relative aspect-[3/4] mb-4 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                    <div className="p-2 sm:p-3 md:p-4">
+                      <div className="relative aspect-[3/4] mb-2 sm:mb-3 md:mb-4 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                         <Image
                           src={book.image_url}
                           alt={book.product_name}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
-                          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.src = '/images/book-placeholder.jpg';
                           }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                          <span className="text-white text-sm font-medium">View Details</span>
+                          <span className="text-white text-xs sm:text-sm font-medium">View Details</span>
                         </div>
                       </div>
                       
-                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight min-h-[2.5rem]">
+                      <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 line-clamp-2 text-xs sm:text-sm leading-tight min-h-[2rem] sm:min-h-[2.5rem]">
                         {book.product_name}
                       </h3>
                       
-                      <div className="mb-3">
+                      <div className="mb-2 sm:mb-3">
                         {getRatingStars(book.rating)}
                       </div>
                       
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-600 bg-gradient-to-r from-indigo-50 to-purple-50 px-3 py-1.5 rounded-full font-medium">
+                      <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-1 xs:gap-0">
+                        <span className="text-[10px] xs:text-xs text-gray-600 bg-gradient-to-r from-indigo-50 to-purple-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-medium truncate max-w-full">
                           {book.category}
                         </span>
-                        <span className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        <span className="text-base sm:text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                           £{book.price}
                         </span>
                       </div>
@@ -247,20 +321,20 @@ export default function BooksPage() {
                 ))}
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {filteredBooks.map((book) => (
                   <div
                     key={book.id}
-                    className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer p-6 flex gap-6 group"
+                    className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer p-3 sm:p-4 md:p-6 flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 group"
                     onClick={() => setSelectedBook(book)}
                   >
-                    <div className="relative w-32 h-44 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                    <div className="relative w-full sm:w-32 h-48 sm:h-44 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                       <Image
                         src={book.image_url}
                         alt={book.product_name}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-500"
-                        sizes="128px"
+                        sizes="(max-width: 640px) 100vw, 128px"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = '/images/book-placeholder.jpg';
@@ -270,24 +344,24 @@ export default function BooksPage() {
                     
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
-                        <h3 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                        <h3 className="font-bold text-lg sm:text-xl text-gray-900 mb-1 sm:mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">
                           {book.product_name}
                         </h3>
-                        <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+                        <p className="text-gray-600 text-sm line-clamp-2 mb-2 sm:mb-3">
                           {book.product_description}
                         </p>
-                        <div className="flex items-center gap-4 mb-3">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
                           {getRatingStars(book.rating)}
-                          <span className="text-xs text-gray-600 bg-gradient-to-r from-indigo-50 to-purple-50 px-3 py-1.5 rounded-full font-medium">
+                          <span className="text-xs text-gray-600 bg-gradient-to-r from-indigo-50 to-purple-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-medium">
                             {book.category}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                           £{book.price}
                         </span>
-                        <button className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors text-sm font-medium">
+                        <button className="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors text-xs sm:text-sm font-medium">
                           View Details
                         </button>
                       </div>
@@ -298,7 +372,7 @@ export default function BooksPage() {
             )}
 
             {/* Load More Button */}
-            {hasMoreBooks && !searchQuery && (
+            {hasMoreBooks && !searchQuery && !isSearching && (
               <div className="text-center mt-12">
                 <button
                   onClick={loadMoreBooks}
