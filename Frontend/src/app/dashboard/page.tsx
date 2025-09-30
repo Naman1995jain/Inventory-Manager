@@ -11,6 +11,9 @@ import { productService, stockMovementService, stockTransferService } from '@/li
 import toast from 'react-hot-toast';
 // Removed LineChart — showing product details list instead of activity diagram
 import BarChart from '@/components/BarChart';
+import ProductQuickDetails from '@/components/ProductQuickDetails';
+import StockListSection from '@/components/StockListSection';
+import PurchaseSaleAnalytics from '@/components/PurchaseSaleAnalytics';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -267,26 +270,8 @@ export default function DashboardPage() {
 
           {/* Charts & Details */}
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Products — Quick Details</h3>
-              <div className="w-full">
-                        {allProducts.length === 0 ? (
-                          <div className="text-sm text-gray-500">No product data to show</div>
-                        ) : (
-                          <div className="space-y-3">
-                            {/* Show all fetched products (cap at 100 by fetch) with key details */}
-                            {allProducts.map((p) => (
-                              <div key={p.id} className="flex items-center justify-between border-b pb-2">
-                                <div>
-                                  <div className="text-sm font-medium text-gray-900">{p.name}</div>
-                                  <div className="text-xs text-gray-500">SKU: {p.sku || 'N/A'} — Unit: {p.unit_of_measure || 'units'}</div>
-                                </div>
-                                <div className="text-sm font-semibold text-gray-700">{p.total_stock || 0}</div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-              </div>
+            <div className="lg:col-span-2">
+              <ProductQuickDetails products={allProducts} maxItems={5} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow">
@@ -296,35 +281,19 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Lowest stock</h3>
-              <ul className="space-y-3">
-                {topLow.map(p => (
-                  <li key={p.id} className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{p.name}</div>
-                      <div className="text-xs text-gray-500">SKU: {p.sku}</div>
-                    </div>
-                    <div className="text-sm font-semibold text-red-600">{p.total_stock || 0}</div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <StockListSection 
+              products={topLow} 
+              title="Lowest stock" 
+              type="low" 
+              maxItems={4} 
+            />
 
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Highest stock</h3>
-              <ul className="space-y-3">
-                {topHigh.map(p => (
-                  <li key={p.id} className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{p.name}</div>
-                      <div className="text-xs text-gray-500">SKU: {p.sku}</div>
-                    </div>
-                    <div className="text-sm font-semibold text-green-600">{p.total_stock || 0}</div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <StockListSection 
+              products={topHigh} 
+              title="Highest stock" 
+              type="high" 
+              maxItems={4} 
+            />
 
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-medium text-gray-900 mb-3">Pending transfers</h3>
@@ -345,6 +314,11 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Purchase & Sale Analytics */}
+        <div className="mt-8">
+          <PurchaseSaleAnalytics />
         </div>
       </Layout>
     </ProtectedRoute>

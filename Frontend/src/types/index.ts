@@ -105,6 +105,9 @@ export interface StockMovement {
   product?: Product;
   warehouse?: Warehouse;
   creator?: User;
+  // Additional fields from purchase-sale endpoint
+  product_name?: string;
+  warehouse_name?: string;
 }
 
 export interface StockMovementCreate {

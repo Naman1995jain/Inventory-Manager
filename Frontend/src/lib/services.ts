@@ -71,6 +71,11 @@ export const stockMovementService = {
     return response.data;
   },
 
+  async getPurchaseSaleMovements(): Promise<StockMovementListResponse> {
+    const response = await api.get<StockMovementListResponse>('/stock-movements/purchase-sale');
+    return response.data;
+  },
+
   async createStockMovement(data: StockMovementCreate): Promise<StockMovement> {
     const response = await api.post<StockMovement>('/stock-movements/', data);
     return response.data;
