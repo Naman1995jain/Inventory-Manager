@@ -94,6 +94,17 @@ export default function BooksPage() {
 
   useEffect(() => {
     fetchBooks(1, true);
+    
+    // Listen for custom event from recommendations
+    const handleOpenBookModal = (event: CustomEvent) => {
+      setSelectedBook(event.detail);
+    };
+    
+    window.addEventListener('openBookModal', handleOpenBookModal as EventListener);
+    
+    return () => {
+      window.removeEventListener('openBookModal', handleOpenBookModal as EventListener);
+    };
   }, []);
 
   const loadMoreBooks = () => {

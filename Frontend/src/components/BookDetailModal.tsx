@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { Recommendations } from './Recommendations';
 
 interface Book {
   id: number;
@@ -102,34 +103,34 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
         }
       }}
     >
-      <div className={`bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden transition-all duration-300 ${
+      <div className={`bg-white rounded-xl sm:rounded-3xl shadow-2xl max-w-7xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden transition-all duration-300 mx-2 sm:mx-4 ${
         isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
       }`}>
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5 flex items-center justify-between z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between z-10">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-lg sm:text-xl font-bold text-white">
               Book Details
             </h2>
           </div>
           <button
             onClick={handleClose}
-            className="text-white/80 hover:text-white hover:bg-white/20 transition-all rounded-full p-2"
+            className="text-white/80 hover:text-white hover:bg-white/20 transition-all rounded-full p-1.5 sm:p-2"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
-          <div className="p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="overflow-y-auto max-h-[calc(95vh-72px)] sm:max-h-[calc(90vh-80px)]">
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
               {/* Book Image */}
               <div className="lg:col-span-2">
                 <div className="sticky top-8">
@@ -325,6 +326,19 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
                   </ul>
                 </div>
               </div>
+            </div>
+            
+            {/* Recommendations Section */}
+            <div className="mt-6 sm:mt-8">
+              <Recommendations book={book} onBookClick={(recommendedBook) => {
+                // Close current modal and open new one with recommended book
+                handleClose();
+                // Small delay to allow modal to close before opening new one
+                setTimeout(() => {
+                  // This will be handled by the parent component
+                  window.dispatchEvent(new CustomEvent('openBookModal', { detail: recommendedBook }));
+                }, 300);
+              }} />
             </div>
           </div>
         </div>

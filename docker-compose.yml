@@ -61,7 +61,7 @@ services:
       # Security Configuration
       SECRET_KEY: ${SECRET_KEY:-your-super-secret-key-change-in-production}
       ALGORITHM: HS256
-      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
       BCRYPT_ROUNDS: ${BCRYPT_ROUNDS:-12}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-namanjain34710@gmail.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-123456789}
