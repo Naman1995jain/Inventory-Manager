@@ -149,6 +149,14 @@ export default function PurchaseSaleAnalytics({ className = '' }: PurchaseSaleAn
       .slice(0, 8);
   };
 
+  // Safely format unit cost for display. Accepts numbers, numeric strings, or null/undefined.
+  const formatUnitCost = (value: any) => {
+    if (value === null || value === undefined) return null;
+    const num = Number(value);
+    if (Number.isNaN(num)) return null;
+    return num.toFixed(2);
+  };
+
   if (isLoading) {
     return (
       <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
@@ -258,10 +266,10 @@ export default function PurchaseSaleAnalytics({ className = '' }: PurchaseSaleAn
                           <span>Warehouse:</span>
                           <span className="truncate ml-2">{transaction.warehouse?.name || transaction.warehouse_name || `Warehouse ${transaction.warehouse_id}`}</span>
                         </div>
-                        {transaction.unit_cost && (
+                        {formatUnitCost(transaction.unit_cost) !== null && (
                           <div className="flex items-center justify-between">
                             <span>Unit Cost:</span>
-                            <span>${transaction.unit_cost.toFixed(2)}</span>
+                            <span>${formatUnitCost(transaction.unit_cost)}</span>
                           </div>
                         )}
                       </div>
@@ -359,9 +367,9 @@ export default function PurchaseSaleAnalytics({ className = '' }: PurchaseSaleAn
                           <div className="text-sm text-gray-600">
                             ${Math.abs(transaction.total_cost || 0).toLocaleString()}
                           </div>
-                          {transaction.unit_cost && (
+                          {formatUnitCost(transaction.unit_cost) !== null && (
                             <div className="text-xs text-gray-500">
-                              ${parseFloat(String(transaction.unit_cost)).toFixed(2)}/unit
+                              ${formatUnitCost(transaction.unit_cost)}/unit
                             </div>
                           )}
                         </div>

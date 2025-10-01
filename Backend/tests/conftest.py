@@ -5,24 +5,27 @@ from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 # Add the backend directory to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from app.core.database import Base, get_database, test_engine
+from app.core.database import Base, get_database
 from app.core.dependencies import get_current_active_user
-from app.models import User
+from app.core.config import settings
+from app.models.models import User, Warehouse, Product
 from app.schemas.schemas import User as UserSchema
-from main import app
 
+# Load environment variables
 load_dotenv()
 
-# Test database configuration - Use SQLite for testing to avoid ML dependencies
-TEST_DATABASE_URL = "sqlite:///./test.db"
+# Test database configuration
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
 
 # Create test engine and session
-test_engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+test_engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in TEST_DATABASE_URL else {})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 def override_get_database():
@@ -38,16 +41,48 @@ def create_test_user() -> UserSchema:
     return UserSchema(
         id=1,
         email="test@example.com",
-        created_at="2023-01-01T00:00:00"
+        created_at="2023-01-01T00:00:00",
+        is_admin=False
     )
 
 def override_get_current_active_user():
     """Override authentication dependency for testing"""
     return create_test_user()
 
-# Override dependencies
-app.dependency_overrides[get_database] = override_get_database
-app.dependency_overrides[get_current_active_user] = override_get_current_active_user
+# Create a minimal FastAPI app for testing (without ML dependencies)
+def create_test_app():
+    app = FastAPI(
+        title="Test Inventory Management API",
+        version="1.0.0",
+        description="Test API"
+    )
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    
+    # Include only core API routers without ML dependencies
+    from app.api import auth, products, stock_movements, stock_transfers, warehouses, scraped_products
+    
+    app.include_router(auth.router, prefix=settings.API_V1_STR)
+    app.include_router(products.router, prefix=settings.API_V1_STR)
+    app.include_router(stock_movements.router, prefix=settings.API_V1_STR)
+    app.include_router(stock_transfers.router, prefix=settings.API_V1_STR)
+    app.include_router(warehouses.router, prefix=settings.API_V1_STR)
+    app.include_router(scraped_products.router, prefix=settings.API_V1_STR)
+    
+    # Override dependencies
+    app.dependency_overrides[get_database] = override_get_database
+    app.dependency_overrides[get_current_active_user] = override_get_current_active_user
+    
+    return app
+
+# Create the test app
+test_app = create_test_app()
 
 @pytest.fixture(scope="session")
 def engine():
@@ -77,7 +112,7 @@ def db_session(tables, engine):
 @pytest.fixture
 def client() -> Generator:
     """Create test client"""
-    with TestClient(app) as c:
+    with TestClient(test_app) as c:
         yield c
 
 @pytest.fixture
@@ -91,7 +126,22 @@ def test_user(db_session):
     from app.core.security import get_password_hash
     user = User(
         email="test@example.com",
-        hashed_password=get_password_hash("testpassword123")
+        hashed_password=get_password_hash("testpassword123"),
+        is_admin=False
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+@pytest.fixture
+def admin_user(db_session):
+    """Create an admin user in the database"""
+    from app.core.security import get_password_hash
+    user = User(
+        email="admin@example.com",
+        hashed_password=get_password_hash("adminpassword123"),
+        is_admin=True
     )
     db_session.add(user)
     db_session.commit()
@@ -101,7 +151,6 @@ def test_user(db_session):
 @pytest.fixture
 def test_warehouse(db_session):
     """Create a test warehouse"""
-    from app.models import Warehouse
     warehouse = Warehouse(
         name="Test Warehouse",
         location="Test Location",
@@ -115,7 +164,6 @@ def test_warehouse(db_session):
 @pytest.fixture
 def test_product(db_session, test_user):
     """Create a test product"""
-    from app.models import Product
     product = Product(
         name="Test Product",
         sku="TEST001",
@@ -133,7 +181,6 @@ def test_product(db_session, test_user):
 @pytest.fixture
 def multiple_warehouses(db_session):
     """Create multiple test warehouses"""
-    from app.models import Warehouse
     warehouses = []
     for i in range(3):
         warehouse = Warehouse(
@@ -152,7 +199,6 @@ def multiple_warehouses(db_session):
 @pytest.fixture
 def multiple_products(db_session, test_user):
     """Create multiple test products"""
-    from app.models import Product
     products = []
     for i in range(5):
         product = Product(

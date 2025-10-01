@@ -44,6 +44,14 @@ export default function TransactionsModal({ transactions, isOpen, onClose }: Tra
     setIsProductModalOpen(false);
   };
 
+  // Safely format unit cost for display. Accepts numbers, numeric strings, or null/undefined.
+  const formatUnitCost = (value: any) => {
+    if (value === null || value === undefined) return null;
+    const num = Number(value);
+    if (Number.isNaN(num)) return null;
+    return num.toFixed(2);
+  };
+
   return (
     <>
       <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -165,7 +173,7 @@ export default function TransactionsModal({ transactions, isOpen, onClose }: Tra
                               <div className="flex items-center space-x-1">
                                 <DollarSign className="h-3 w-3" />
                                 <span className="font-medium">Unit Cost:</span>
-                                <span>${transaction.unit_cost ? transaction.unit_cost.toFixed(2) : 'N/A'}</span>
+                                <span>${formatUnitCost(transaction.unit_cost) ?? 'N/A'}</span>
                               </div>
                               <div className="flex items-center space-x-1">
                                 <DollarSign className="h-3 w-3" />
@@ -213,9 +221,9 @@ export default function TransactionsModal({ transactions, isOpen, onClose }: Tra
                               <DollarSign className="h-3 w-3 mr-1" />
                               {Math.abs(transaction.total_cost || 0).toLocaleString()}
                             </div>
-                            {transaction.unit_cost && (
+                            {formatUnitCost(transaction.unit_cost) !== null && (
                               <div className="text-xs text-gray-400">
-                                ${transaction.unit_cost}/unit
+                                ${formatUnitCost(transaction.unit_cost)}/unit
                               </div>
                             )}
                           </div>
