@@ -6,7 +6,9 @@ FROM python:3.12-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    TRANSFORMERS_CACHE=/home/appuser/.cache/huggingface \
+    HF_HOME=/home/appuser/.cache/huggingface
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -35,13 +37,14 @@ COPY . .
 
 # Create non-root user for security
 RUN groupadd -r appuser && \
-    useradd -r -g appuser -s /bin/false appuser
+    useradd -r -g appuser -d /home/appuser -m appuser
 
-# Create logs directory with proper permissions
-RUN mkdir -p /app/logs && \
-    chown -R appuser:appuser /app && \
+# Create logs directory and set up home directory with proper permissions
+RUN mkdir -p /app/logs /home/appuser/.cache && \
+    chown -R appuser:appuser /app /home/appuser && \
     chmod -R 755 /app && \
-    chmod 777 /app/logs
+    chmod 777 /app/logs && \
+    chmod -R 755 /home/appuser
 
 # Copy and make initialization script executable
 # Copy entrypoint script

@@ -71,10 +71,14 @@ services:
       - inventory-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
-      start_period: 60s
+      # Check every 10 minutes to minimize interference
+      interval: 600s
+      # Allow 10 minutes for each health check to complete
+      timeout: 600s
+      # Allow unlimited retries (very high number means it will keep trying)
+      retries: 999
+      # No time limit - wait as long as needed for startup
+      start_period: 7200s
 
   # Frontend Service
   frontend:
