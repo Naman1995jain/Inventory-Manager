@@ -261,7 +261,7 @@ export default function PurchaseSaleAnalytics({ className = '' }: PurchaseSaleAn
                         {transaction.unit_cost && (
                           <div className="flex items-center justify-between">
                             <span>Unit Cost:</span>
-                            <span>${parseFloat(transaction.unit_cost).toFixed(2)}</span>
+                            <span>${transaction.unit_cost.toFixed(2)}</span>
                           </div>
                         )}
                       </div>
@@ -361,7 +361,7 @@ export default function PurchaseSaleAnalytics({ className = '' }: PurchaseSaleAn
                           </div>
                           {transaction.unit_cost && (
                             <div className="text-xs text-gray-500">
-                              ${parseFloat(transaction.unit_cost).toFixed(2)}/unit
+                              ${parseFloat(String(transaction.unit_cost)).toFixed(2)}/unit
                             </div>
                           )}
                         </div>
