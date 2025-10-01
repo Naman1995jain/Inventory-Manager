@@ -165,7 +165,7 @@ export default function TransactionsModal({ transactions, isOpen, onClose }: Tra
                               <div className="flex items-center space-x-1">
                                 <DollarSign className="h-3 w-3" />
                                 <span className="font-medium">Unit Cost:</span>
-                                <span>${transaction.unit_cost ? parseFloat(transaction.unit_cost).toFixed(2) : 'N/A'}</span>
+                                <span>${transaction.unit_cost ? transaction.unit_cost.toFixed(2) : 'N/A'}</span>
                               </div>
                               <div className="flex items-center space-x-1">
                                 <DollarSign className="h-3 w-3" />
