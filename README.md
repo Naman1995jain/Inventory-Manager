@@ -367,7 +367,7 @@ Alternatively, you can run Docker Compose manually:
 
 ```bash
 # Production mode (default)
-docker-compose up -d
+docker-compose up --build
 
 # Development mode with hot-reload
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
@@ -398,12 +398,7 @@ The Docker setup includes:
    cp .env.template .env
    ```
 
-2. Edit `.env` with your configuration:
-   ```bash
-   nano .env
-   ```
-
-3. **Important**: Change the default passwords and secret keys before production deployment!
+2. **Important**: Change the default passwords and secret keys before production deployment!
 
 ### Access Points
 
@@ -416,164 +411,7 @@ After deployment, access your application at:
 
 For detailed Docker deployment instructions, troubleshooting, and advanced configuration, see [DOCKER-DEPLOYMENT.md](DOCKER-DEPLOYMENT.md).
 
-## 🧪 Testing Suite
-
-The project includes a comprehensive testing suite for the backend API, ensuring reliability, security, and functionality of all critical components.
-
-### Test Architecture
-
-The testing suite is organized into two main categories:
-
-- **Unit Tests**: Test individual business logic functions in isolation with mocked dependencies
-- **Integration Tests**: Test complete API endpoints with real database interactions
-
-### Test Structure
-
-```
-Backend/tests/
-├── unit/                        # Unit tests (business logic isolation)
-│   ├── test_auth_service.py     # UserService unit tests
-│   ├── test_product_service.py  # ProductService unit tests  
-│   ├── test_stock_service.py    # StockService unit tests
-│   └── test_security.py        # Security functions unit tests
-├── integration/                 # Integration tests (API endpoints)
-│   ├── test_auth_api.py         # Authentication API tests
-│   ├── test_products_api.py     # Products API tests
-│   ├── test_stock_movements_api.py  # Stock movements API tests
-│   ├── test_stock_transfers_api.py  # Stock transfers API tests
-│   └── test_warehouses_api.py   # Warehouses API tests
-├── conftest.py                  # Test configuration and fixtures
-└── README.md                    # Detailed testing documentation
-```
-
-### Quick Test Commands
-
-```bash
-cd Backend
-
-# Run all tests
-./run_tests.sh
-
-# Run specific test categories
-./run_tests.sh unit          # Fast unit tests only
-./run_tests.sh integration   # API integration tests only
-./run_tests.sh coverage      # Generate coverage report
-
-# Using pytest directly
-pytest -v                    # All tests with verbose output
-pytest -m unit              # Unit tests only  
-pytest -m integration       # Integration tests only
-pytest --cov=app            # Run with coverage
-```
-
-### Test Coverage
-
-The testing suite provides comprehensive coverage:
-
-- **Unit Tests**: 50+ isolated function tests covering:
-  - Authentication service (user creation, login, validation)
-  - Product service (CRUD operations, SKU validation, stock calculations)  
-  - Stock service (movements, transfers, inventory validation)
-  - Security functions (JWT tokens, password hashing)
-
-- **Integration Tests**: 40+ API endpoint tests covering:
-  - Complete authentication workflows (register, login, token validation)
-  - Product management with pagination, search, and filtering
-  - Stock movement creation and validation
-  - Stock transfer workflows between warehouses
-  - Warehouse management and data consistency
-
-- **Coverage Targets**: >80% overall, >90% for business services, 100% for security functions
-
-### Database Testing
-
-Tests use an isolated test database to ensure:
-
-- **Test Isolation**: Each test runs in a transaction that rolls back
-- **Clean State**: Fresh database state for every test
-- **Real Database**: Integration tests use actual PostgreSQL (not mocks)
-- **Performance**: Fast execution with proper database cleanup
-
-### Test Features
-
-#### Comprehensive Scenarios
-- ✅ **Success Paths**: Normal operation workflows
-- ✅ **Error Handling**: Invalid data, missing resources, permission errors  
-- ✅ **Edge Cases**: Boundary conditions, race conditions, data constraints
-- ✅ **Security**: Authentication bypass attempts, invalid tokens, authorization
-
-#### Professional Testing Practices
-- ✅ **Test Fixtures**: Reusable test data and mock objects
-- ✅ **Mocking**: External dependencies isolated in unit tests
-- ✅ **Authentication Testing**: Both authenticated and unauthenticated scenarios
-- ✅ **Data Validation**: Schema validation and business rule enforcement
-
-### Environment Setup for Testing
-
-1. **Test Database Setup**:
-   ```sql
-   CREATE DATABASE inventory_test_db;
-   CREATE USER test_user WITH PASSWORD 'test_password';
-   GRANT ALL PRIVILEGES ON DATABASE inventory_test_db TO test_user;
-   ```
-
-2. **Environment Configuration**:
-   ```bash
-   # Copy test environment template
-   cp Backend/.env.test Backend/.env
-   
-   # Update database connection for testing
-   TEST_DATABASE_URL=postgresql://test_user:test_password@localhost/inventory_test_db
-   ```
-
-3. **Install Test Dependencies**:
-   ```bash
-   cd Backend
-   pip install -r requirements.txt  # Includes pytest, pytest-cov, httpx
-   ```
-
-### Running Specific Tests
-
-```bash
-# Run tests for specific functionality
-pytest tests/unit/test_auth_service.py                    # Auth service only
-pytest tests/integration/test_products_api.py             # Products API only
-pytest -k "test_create_product"                           # All product creation tests
-pytest -k "test_auth" --tb=short                         # All auth-related tests
-
-# Run with different output formats
-pytest --junitxml=test-results.xml                        # CI/CD compatible output
-pytest --html=test-report.html --self-contained-html      # HTML report
-```
-
-### Test Performance
-
-- **Unit Tests**: <50ms per test (fast feedback loop)
-- **Integration Tests**: <500ms per test (real database operations)
-- **Full Suite**: <60 seconds (comprehensive validation)
-- **Parallel Execution**: Support for `pytest-xdist` for faster CI/CD
-
-### Continuous Integration Ready
-
-The test suite is designed for CI/CD pipelines:
-
-```yaml
-# Example GitHub Actions usage
-- name: Run Backend Tests
-  run: |
-    cd Backend
-    pip install -r requirements.txt
-    pytest --cov=app --cov-report=xml --junitxml=test-results.xml
-```
-
-### Test Documentation
-
-For detailed testing documentation, setup instructions, and best practices, see:
-- **[Backend/tests/README.md](Backend/tests/README.md)** - Comprehensive testing guide
-- **[Backend/pytest.ini](Backend/pytest.ini)** - Pytest configuration  
-- **[Backend/conftest.py](Backend/conftest.py)** - Test fixtures and setup
-
-
+## Environment Variables
 ## Environment Variables
 
 Backend expects a `.env` file with values such as:
@@ -600,64 +438,6 @@ The backend exposes API endpoints prefixed with `/api/v1`. Key endpoints include
 
 Visit the running server's `/docs` to view the full OpenAPI docs.
 
-## Contributing
-
-We welcome contributions to the Inventory Manager project! Please follow these guidelines:
-
-### Development Workflow
-
-1. **Fork the repository** and create a feature branch from `main`
-2. **Set up the development environment** following the setup instructions above
-3. **Implement your changes** following the existing code patterns and conventions
-
-### Testing Requirements
-
-**All contributions must include appropriate tests:**
-
-- **New Features**: Add both unit tests and integration tests
-- **Bug Fixes**: Add regression tests to prevent the issue from recurring  
-- **API Changes**: Update integration tests to reflect new behavior
-- **Service Logic**: Ensure unit test coverage for business logic changes
-
-### Running Tests Before Submission
-
-```bash
-cd Backend
-
-# Run full test suite
-./run_tests.sh
-
-# Run tests with coverage (must be >80%)
-./run_tests.sh coverage
-
-# Run specific test categories
-./run_tests.sh unit        # Fast feedback during development
-./run_tests.sh integration # Full API validation
-```
-
-### Code Quality Standards
-
-- **Backend**: Follow PEP 8 Python style guidelines
-- **Frontend**: Use TypeScript strict mode and follow React best practices
-- **Tests**: Write clear, descriptive test names and include both success and failure scenarios
-- **Documentation**: Update README files and API documentation for significant changes
-
-### Pull Request Process
-
-1. **Ensure all tests pass** and coverage remains above 80%
-2. **Update documentation** if you've made API changes
-3. **Write a clear PR description** explaining the changes and their impact
-4. **Reference any related issues** using GitHub's linking syntax
-
-### Review Criteria
-
-Pull requests will be reviewed for:
-
-- ✅ **Test Coverage**: All new code covered by appropriate tests
-- ✅ **Code Quality**: Clean, readable, and maintainable code
-- ✅ **API Compatibility**: No breaking changes unless explicitly discussed  
-- ✅ **Security**: No introduction of security vulnerabilities
-- ✅ **Performance**: No significant performance regressions
 
 ### Getting Help
 
