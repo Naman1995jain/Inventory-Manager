@@ -25,46 +25,81 @@ A comprehensive RESTful API for inventory management built with **FastAPI**, **P
 - **Database Migrations**: Alembic (ready for future use)
 
 ## 📁 Project Structure
-
 ```
-NewBackend/
-├── app/
+Backend/                        # Backend FastAPI service
+├── app/                        # Application package
 │   ├── __init__.py
-│   ├── api/                    # API route handlers
+│   ├── api/                    # HTTP route handlers (endpoints)
 │   │   ├── __init__.py
-│   │   ├── auth.py            # Authentication endpoints
-│   │   ├── products.py        # Product CRUD endpoints
-│   │   ├── stock_movements.py # Stock movement endpoints
-│   │   └── stock_transfers.py # Stock transfer endpoints
-│   ├── core/                  # Core configuration and dependencies
+│   │   ├── auth.py             # Authentication endpoints
+│   │   ├── products.py         # Product CRUD and listing endpoints
+│   │   ├── recommendations.py  # Recommendation/search endpoints
+│   │   ├── scraped_products.py # Scraped product import endpoints
+│   │   ├── stock_movements.py  # Stock movement ledger endpoints
+│   │   ├── stock_transfers.py  # Warehouse transfer endpoints
+│   │   └── warehouses.py       # Warehouse management endpoints
+│   ├── core/                   # Core config, DB and dependencies
 │   │   ├── __init__.py
-│   │   ├── config.py          # Application settings
-│   │   ├── database.py        # Database configuration
-│   │   ├── dependencies.py    # FastAPI dependencies
-│   │   └── security.py        # Security utilities
-│   ├── models/                # SQLAlchemy models
+│   │   ├── config.py           # App settings / environment
+│   │   ├── database.py         # SQLAlchemy DB setup and session
+│   │   ├── dependencies.py     # FastAPI dependency providers
+│   │   ├── logger.py           # Structured logging setup
+│   │   ├── permissions.py      # Permission checks and decorators
+│   │   └── security.py         # JWT, password hashing, auth helpers
+│   ├── models/                 # SQLAlchemy models
 │   │   ├── __init__.py
-│   │   └── models.py          # Database models
-│   ├── schemas/               # Pydantic schemas
+│   │   └── models.py           # All DB model classes
+│   ├── schemas/                # Pydantic request/response schemas
 │   │   ├── __init__.py
-│   │   └── schemas.py         # Request/response schemas
-│   └── services/              # Business logic
+│   │   └── schemas.py
+│   └── services/               # Business logic layer
 │       ├── __init__.py
-│       ├── auth_service.py    # Authentication business logic
-│       ├── product_service.py # Product business logic
-│       └── stock_service.py   # Stock management logic
-├── scripts/
-│   └── setup_database.py     # Database setup script
-├── tests/                     # Test suite
-│   ├── conftest.py           # Test configuration
-│   ├── test_auth.py          # Authentication tests
-│   ├── test_products.py      # Product tests
-│   └── test_api.py           # API integration tests
-├── .env                      # Environment variables
-├── .venv/                    # Virtual environment
-├── main.py                   # FastAPI application entry point
-├── pytest.ini               # pytest configuration
-└── requirements.txt          # Python dependencies
+│       ├── auth_service.py     # User registration/login logic
+│       ├── product_service.py  # Product-related business rules
+│       ├── recommendation_service.py # Embeddings / similarity logic
+│       └── stock_service.py    # Stock movement and transfer logic
+├── conftest.py                 # Pytest fixtures for backend tests
+├── docker-entrypoint.sh        # Docker container entrypoint script
+├── Dockerfile                  # Docker build for backend service
+├── main.py                     # FastAPI app entrypoint (uvicorn launcher)
+├── README.md                   # This file (backend README)
+├── requirements.txt            # Python dependencies
+├── run_tests.sh                # Helper script to run tests inside env
+├── scripts/                    # Utility scripts (DB setup, scraping, seeding)
+│   ├── add_admin_column.py     # DB alter helper
+│   ├── create_admin_user.py    # Create admin user script
+│   ├── create_databases.py     # Create DBs for dev/test
+│   ├── migrate_user_table.py   # Small migration helper
+│   ├── scrape_and_store.py     # Scraper that stores product data
+│   ├── setup_admin.sh          # Shell helper to bootstrap admin
+│   ├── setup_database.py       # Initialize DB schema & seed data
+│   └── setup_recommendations.py# Prepare embeddings/ML artifacts
+├── data/                       # Non-code data (embeddings, metadata)
+│   └── embeddings/
+│       ├── price_features.npy
+│       ├── product_embeddings.npy
+│       └── product_metadata.pkl
+├── fail2ban/                   # Security configs for fail2ban
+│   ├── filter.d/
+│   │   └── fastapi-auth.conf
+│   └── jail.d/
+│       └── fastapi-auth.conf
+├── logs/                       # Runtime logs
+│   └── app.log
+└── tests/                      # Test suite (unit + integration)
+    ├── __init__.py
+    ├── conftest.py
+    ├── api/                    # API integration tests
+    │   ├── __init__.py
+    │   ├── conftest.py
+    │   ├── test_auth_simple.py
+    │   ├── test_auth.py
+    │   ├── test_products.py
+    │   ├── test_scraped_products.py
+    │   ├── test_stock_movements.py
+    │   └── test_stock_transfers.py
+    ├── models/                 # Model unit tests
+    └── services/               # Service/business logic tests
 ```
 
 ## 🔧 Setup Instructions
@@ -143,7 +178,7 @@ python scripts/setup_database.py
 
 Below is the database diagram showing the main tables and relationships used by the application. The image file is located at `images/database.png` in the `Backend` folder.
 
-![Database Schema](images/database.png)
+![Database Schema](/images/database.png)
 
 Key entities:
 - `products`: product catalog and attributes
@@ -167,45 +202,39 @@ The API will be available at:
 
 ## 📚 API Documentation
 
-### Authentication Endpoints
+All API endpoints (except authentication) require authentication via `Authorization: Bearer <token>` header.
+
+### 🔐 Authentication Endpoints
 
 #### Register User
 ```http
-POST /api/v1/auth/register
+POST /auth/register
 Content-Type: application/json
 
 {
   "email": "john@example.com",
-  "password": "securepassword123",
+  "password": "securepassword123"
 }
 ```
+**Response**: User object with id, email, is_admin fields
 
 #### Login
 ```http
-POST /api/v1/auth/login
-Content-Type: application/x-www-form-urlencoded
-
-username=johndoe&password=securepassword123
-```
-
-#### Login (JSON)
-```http
-POST /api/v1/auth/login-json
+POST /auth/login
 Content-Type: application/json
 
 {
   "email": "john@example.com",
-  "password": "securepassword123",
+  "password": "securepassword123"
 }
 ```
+**Response**: JWT access token and token type
 
-### Product Management
-
-All product endpoints require authentication via `Authorization: Bearer <token>` header.
+### 📦 Product Management
 
 #### Create Product
 ```http
-POST /api/v1/products/
+POST /products/
 Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -219,13 +248,19 @@ Content-Type: application/json
 }
 ```
 
-#### List Products (with Pagination & Search)
+#### List All Products (Admin/Global View)
 ```http
-GET /api/v1/products/?page=1&page_size=20&search=laptop&sort_by=name_asc
+GET /products/?page=1&page_size=20&search=laptop&sort_by=name_asc
 Authorization: Bearer <token>
 ```
 
-Query Parameters:
+#### List Owned Products (User's Products Only)
+```http
+GET /products/owned?page=1&page_size=20&search=laptop&sort_by=name_asc
+Authorization: Bearer <token>
+```
+
+**Query Parameters for Product Listing**:
 - `page`: Page number (default: 1)
 - `page_size`: Items per page (default: 20, max: 100)
 - `sort_by`: `name_asc|name_desc|stock_asc|stock_desc|created_asc|created_desc`
@@ -235,40 +270,54 @@ Query Parameters:
 
 #### Get Product Details
 ```http
-GET /api/v1/products/{product_id}
+GET /products/{product_id}
 Authorization: Bearer <token>
 ```
+**Response**: Product details with total stock and warehouse stock distribution
 
-Returns product details with stock distribution across warehouses.
-
-#### Update Product
+#### Update Product (Owner Only)
 ```http
-PUT /api/v1/products/{product_id}
+PUT /products/{product_id}
 Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "name": "string",
-  "sku": "string",
-  "description": "string",
-  "unit_price": 0,
-  "unit_of_measure": "string",
-  "category": "string",
+  "name": "Updated Product Name",
+  "sku": "NEW-SKU-001",
+  "description": "Updated description",
+  "unit_price": 1299.99,
+  "unit_of_measure": "piece",
+  "category": "Electronics",
   "is_active": true
 }
 ```
 
-#### Delete Product (Soft Delete)
+#### Delete Product (Owner Only - Soft Delete)
 ```http
-DELETE /api/v1/products/{product_id}
+DELETE /products/{product_id}
 Authorization: Bearer <token>
 ```
 
-### Stock Management
+### 🏭 Warehouse Management
 
-#### Record Stock Movement
+#### List Warehouses
 ```http
-POST /api/v1/stock-movements/
+GET /warehouses/
+Authorization: Bearer <token>
+```
+**Response**: List of all active warehouses
+
+#### Get Warehouse Details
+```http
+GET /warehouses/{warehouse_id}
+Authorization: Bearer <token>
+```
+
+### 📊 Stock Management
+
+#### Record Stock Movement (Owner Only)
+```http
+POST /stock-movements/
 Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -283,9 +332,9 @@ Content-Type: application/json
 }
 ```
 
-Movement Types:
+**Movement Types**:
 - `purchase`: Incoming stock
-- `sale`: Outgoing stock (negative quantity)
+- `sale`: Outgoing stock
 - `adjustment`: Stock adjustments
 - `damaged`: Damaged goods
 - `return`: Customer returns
@@ -294,13 +343,22 @@ Movement Types:
 
 #### List Stock Movements
 ```http
-GET /api/v1/stock-movements/?page=1&page_size=20
+GET /stock-movements/?page=1&page_size=20&sort_by=created_desc
 Authorization: Bearer <token>
 ```
 
-#### Create Stock Transfer
+#### List Purchase/Sale Movements (Summary)
 ```http
-POST /api/v1/stock-transfers/
+GET /stock-movements/purchase-sale
+Authorization: Bearer <token>
+```
+**Response**: All purchase and sale movements with product and warehouse names
+
+### 🔄 Stock Transfers
+
+#### Create Stock Transfer (Owner Only)
+```http
+POST /stock-transfers/
 Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -314,41 +372,59 @@ Content-Type: application/json
 }
 ```
 
-#### Complete Stock Transfer
+#### List Stock Transfers
 ```http
-PUT /api/v1/stock-transfers/{transfer_id}/complete
+GET /stock-transfers/?page=1&page_size=20&sort_by=created_desc
 Authorization: Bearer <token>
 ```
 
-#### Cancel Stock Transfer
+#### Complete Stock Transfer (Owner Only)
 ```http
-PUT /api/v1/stock-transfers/{transfer_id}/cancel
+PUT /stock-transfers/{transfer_id}/complete
 Authorization: Bearer <token>
 ```
 
-## 🧪 Testing
+### 🛒 Scraped Products (External Data)
 
-### Run Tests
+#### Search Scraped Products
+```http
+GET /scraped-products/search?query=laptop
+```
+**No authentication required** - searches through scraped product data
 
-```bash
-# Run all tests
-pytest
+#### List Scraped Products
+```http
+GET /scraped-products/?page=1&page_size=50
+```
+**No authentication required** - paginated list of scraped products
 
-# Run with coverage
-pytest --cov=app --cov-report=html
+### 🤖 Recommendations & AI
 
-# Run specific test file
-pytest tests/test_auth.py
+#### Generate Product Embeddings
+```http
+POST /recommendations/generate-embeddings?force_regenerate=false
+```
+**Purpose**: Generate ML embeddings for product recommendations
 
-# Run with verbose output
-pytest -v
+#### Get Recommendations by Product ID
+```http
+GET /recommendations/{product_id}?recommendation_type=hybrid&limit=10&price_tolerance=0.2
 ```
 
-### Test Categories
+**Recommendation Types**:
+- `price`: Similar price range products
+- `category`: Same category products  
+- `description`: AI-based description similarity
+- `hybrid`: Combines all methods with weights
 
-- **Unit Tests**: Test individual functions and services
-- **Integration Tests**: Test API endpoints end-to-end
-- **Authentication Tests**: Test security and JWT functionality
+**Query Parameters**:
+- `recommendation_type`: `price|category|description|hybrid` (default: hybrid)
+- `limit`: Max recommendations (1-50, default: 10)
+- `price_tolerance`: Price range tolerance (0.1-1.0, default: 0.2)
+- `price_weight`: Weight for price scoring in hybrid mode (0.0-1.0, default: 0.3)
+- `category_weight`: Weight for category scoring in hybrid mode (0.0-1.0, default: 0.3)
+- `description_weight`: Weight for description scoring in hybrid mode (0.0-1.0, default: 0.4)
+
 
 ## 🔐 Security Features
 
@@ -358,8 +434,6 @@ pytest -v
 4. **Input Validation**: Pydantic schemas validate all inputs
 5. **SQL Injection Protection**: SQLAlchemy ORM prevents SQL injection
 6. **CORS Configuration**: Configurable cross-origin resource sharing
-
-## 📈 Scalability Discussion
 
 ### Current Architecture Strengths
 
@@ -501,17 +575,12 @@ This architecture provides a solid foundation for scaling from hundreds to milli
 7. Push to the branch (`git push origin feature/amazing-feature`)
 8. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🆘 Support
 
 For questions or issues:
-1. Check the API documentation at `/docs`
+1. Check the API documentation at `/docs` else `/redoc`
 2. Review the test cases for usage examples
 3. Create an issue in the repository
 
 ---
-
-**Built with ❤️ using FastAPI and PostgreSQL**

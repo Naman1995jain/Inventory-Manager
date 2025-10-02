@@ -134,14 +134,14 @@ CREATE DATABASE inventory_test_db;
 5. Initialize DB (script provided):
 
 ```bash
-python scripts/create_databases.py
-python scripts/setup_database.py
+cd scripts  ./setup_admin.sh  #for macos 
+cd scripts  bash setup_admin.sh #for windows 
 ```
 
 6. Run development server:
 
 ```bash
-uvicorn main:app --reload
+python main.py
 ```
 
 API docs: http://localhost:8000/docs (OpenAPI/Swagger)
