@@ -498,6 +498,10 @@ Images
 
 Two images in the repository illustrate the admin UI and an in-container screenshot: `images/admin.png` and `images/adminindocker.png`.
 
+![change in add_admin_user.py](images/admin.png) 
+![change in docker file](images/adminindocker.png) 
+
+
 Safe workflows
 
 1) Run the script locally (preferred for devs):
