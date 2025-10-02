@@ -485,6 +485,49 @@ The backend exposes API endpoints prefixed with `/api/v1`. Key endpoints include
 Visit the running server's `/docs` to view the full OpenAPI docs.
 
 
+## Changing admin credentials
+
+If a developer needs to change the default admin email or password, update both the compose environment and the admin creation script so values remain consistent.
+
+Where to change
+
+- `docker-compose.yml` — update `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment variables, or create a top-level `.env` file that Docker Compose reads.
+- `Backend/scripts/create_admin_user.py` — this script reads environment variables and will create or update the admin user. If you change defaults inside this script, keep them in sync with your compose/env values.
+
+Images
+
+Two images in the repository illustrate the admin UI and an in-container screenshot: `images/admin.png` and `images/adminindocker.png`.
+
+Safe workflows
+
+1) Run the script locally (preferred for devs):
+
+```bash
+# set environment values in your shell
+export ADMIN_EMAIL="new-admin@example.com"
+export ADMIN_PASSWORD="a-strong-password"
+
+# run the script to create/update the admin
+python Backend/scripts/create_admin_user.py
+```
+
+2) With Docker Compose:
+
+```bash
+# put ADMIN_EMAIL / ADMIN_PASSWORD into a top-level .env (gitignore it)
+docker compose down
+docker compose up -d --force-recreate backend
+
+# OR run the creation script inside the backend container without restarting
+docker compose run --rm backend python scripts/create_admin_user.py
+```
+
+Security notes
+
+- Do not commit credentials to source control. Use `.env` and add it to `.gitignore`.
+- Passwords are truncated to 72 bytes before hashing in the create script — avoid relying on longer passwords.
+- Rotate `SECRET_KEY` (environment / `Backend/app/core/config.py`) if you rotate admin credentials or suspect compromise.
+
 ### Getting Help
 
 - **Issues**: Create an issue for bugs or feature requests
