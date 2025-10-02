@@ -10,6 +10,8 @@ A comprehensive RESTful API for inventory management built with **FastAPI**, **P
 - **📊 Stock Movements**: Immutable ledger for all inventory changes
 - **🔄 Stock Transfers**: Move inventory between warehouses
 - **🔍 Advanced Search & Filtering**: Search products with date filters and sorting
+- **🤖 AI-Powered Recommendations**: Semantic similarity using sentence transformers
+- **🕷️ Web Scraping System**: Automated external product data collection
 - **📋 Comprehensive API Documentation**: Auto-generated with FastAPI/Swagger
 - **🧪 Full Test Suite**: Unit and integration tests with pytest
 - **🔒 Security**: Password hashing, JWT tokens, and protected endpoints
@@ -19,6 +21,8 @@ A comprehensive RESTful API for inventory management built with **FastAPI**, **P
 - **Backend Framework**: FastAPI 0.117+
 - **Database**: PostgreSQL with SQLAlchemy ORM
 - **Authentication**: JWT (JSON Web Tokens) with bcrypt password hashing
+- **AI/ML**: Sentence Transformers (all-MiniLM-L6-v2), scikit-learn, NumPy
+- **Web Scraping**: Beautiful Soup, Requests with robots.txt compliance
 - **Testing**: pytest with async support
 - **API Documentation**: OpenAPI/Swagger (auto-generated)
 - **Environment Management**: python-dotenv
@@ -199,6 +203,105 @@ The API will be available at:
 - **API**: http://localhost:8000
 - **Documentation**: http://localhost:8000/docs
 - **Alternative Docs**: http://localhost:8000/redoc
+
+## 🤖 AI & Scraping Features
+
+### Web Scraping System
+
+The system includes an automated web scraper for external product data collection:
+
+#### Running the Scraper
+```bash
+# Scrape external products (books.toscrape.com by default)
+python scripts/scrape_and_store.py
+```
+
+#### Scraper Features
+- **Respectful crawling**: Checks and respects robots.txt
+- **Rate limiting**: Delays between requests (0.5s default)
+- **Duplicate prevention**: Avoids re-scraping existing products
+- **Data extraction**: Names, descriptions, categories, prices, ratings, images
+- **Error handling**: Graceful handling of network/parsing errors
+- **Configurable limits**: Set `SCRAPE_PAGE_LIMIT` environment variable
+
+#### Scraped Data Storage
+- Stored in `scrapdata` table separate from user products
+- Fields: product_name, product_description, category, price, rating, image_url, product_page_url
+- Automatically timestamped with `scraped_at`
+
+### AI-Powered Recommendation System
+
+The recommendation engine provides intelligent product suggestions:
+
+#### Setup AI System
+```bash
+# Generate embeddings after scraping data
+python scripts/setup_recommendations.py
+```
+
+#### Recommendation Types
+
+1. **Price-based Recommendations**
+   - Find products in similar price ranges
+   - Configurable tolerance (±20% default)
+   - Uses normalized price features
+
+2. **Category-based Recommendations**
+   - Exact category matching
+   - Fallback to similar categories if needed
+
+3. **Description-based Recommendations**
+   - Semantic similarity using AI embeddings
+   - Sentence transformer model (all-MiniLM-L6-v2)
+   - Cosine similarity matching
+
+4. **Hybrid Recommendations**
+   - Combines all methods with configurable weights
+   - Default: 30% price, 30% category, 40% description
+   - Customizable via API parameters
+
+#### AI Components
+
+**Embedding Generation**:
+- Downloads sentence-transformers model on first run
+- Processes product text (title + category + description + price)
+- Generates 384-dimensional embeddings
+- Caches results as NumPy arrays for performance
+
+**Caching System**:
+- `data/embeddings/product_embeddings.npy` - AI embeddings
+- `data/embeddings/product_metadata.pkl` - Product metadata
+- `data/embeddings/price_features.npy` - Normalized price features
+- Automatic cache loading on API startup
+
+**Performance Optimizations**:
+- In-memory embedding cache
+- Vectorized similarity calculations
+- Batch processing for large datasets
+- Standardized feature scaling
+
+### Recommendation Diagram
+
+Visual representation of the recommendation pipeline and how price, category, and description embeddings are combined to produce hybrid recommendations:
+
+![Recommendation Diagram](../images/recommendation.drawio.png)
+
+
+#### API Usage Examples
+
+```bash
+# Generate/regenerate embeddings
+curl -X POST "http://localhost:8000/recommendations/generate-embeddings"
+
+# Get hybrid recommendations for product ID 1
+curl "http://localhost:8000/recommendations/1?recommendation_type=hybrid&limit=10"
+
+# Price-based recommendations with custom tolerance
+curl "http://localhost:8000/recommendations/1?recommendation_type=price&price_tolerance=0.3"
+
+# Custom hybrid weights
+curl "http://localhost:8000/recommendations/1?recommendation_type=hybrid&price_weight=0.5&category_weight=0.2&description_weight=0.3"
+```
 
 ## 📚 API Documentation
 

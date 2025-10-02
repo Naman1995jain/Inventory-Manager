@@ -5,10 +5,12 @@ Contains concise setup & run instructions for both Backend (FastAPI) and Fronten
 
 # Inventory Manager
 
-A full-stack Inventory Management application:
+A full-stack Inventory Management application with AI-powered recommendations and web scraping capabilities:
 
-- Backend: FastAPI + SQLAlchemy + PostgreSQL — REST API with JWT authentication, product management, stock movements and transfers.
-- Frontend: Next.js (TypeScript) + Tailwind — UI for authentication, product CRUD, stock movement tracking and dashboard.
+- **Backend**: FastAPI + SQLAlchemy + PostgreSQL — REST API with JWT authentication, product management, stock movements, transfers, web scraping, and AI-powered product recommendations
+- **Frontend**: Next.js (TypeScript) + Tailwind — UI for authentication, product CRUD, stock movement tracking, dashboard, and recommendation system
+- **AI Features**: Sentence transformer embeddings for semantic product similarity, hybrid recommendation engine with price/category/description matching
+- **Data Ingestion**: Automated web scraper for external product catalogs with respectful crawling (robots.txt compliance)
 
 This repository contains two main folders: `Backend/` and `Frontend/`.
 
@@ -36,6 +38,41 @@ The diagram below illustrates the high-level flow between the Frontend, Backend 
 
 This flow diagram is helpful for new contributors and reviewers to quickly understand request paths, authentication, and how inventory changes travel through the system.
 
+## 🤖 AI & Data Features
+
+### Web Scraping System
+The application includes an automated web scraper that:
+- **Respectfully crawls** external e-commerce sites (checks robots.txt compliance)
+- **Extracts product data** including names, descriptions, categories, prices, ratings, and images
+- **Stores data** in a separate `scrapdata` table for analysis and recommendations
+- **Avoids duplicates** by checking product URLs before insertion
+- **Rate limits** requests to be polite to external servers
+
+### AI-Powered Recommendations
+The recommendation engine provides multiple recommendation types:
+- **Price-based**: Find products in similar price ranges (configurable tolerance)
+- **Category-based**: Discover products in the same category
+- **Description-based**: Semantic similarity using sentence transformer embeddings (AI)
+- **Hybrid mode**: Combines all methods with configurable weights for optimal results
+
+The AI system uses:
+- **Sentence Transformers** (all-MiniLM-L6-v2) for semantic understanding
+- **Cosine similarity** for finding similar products
+- **Cached embeddings** stored as NumPy arrays for fast performance
+- **Normalized features** for fair comparison across different data types
+
+### Recommendation diagram
+
+A high-level diagram of the recommendation engine and data flow (price & category matching, description embeddings, and hybrid scoring):
+
+![Recommendation Diagram](images/recommendation.drawio.png)
+
+
+### Data Pipeline
+1. Run scraper: `python scripts/scrape_and_store.py`
+2. Generate embeddings: `python scripts/setup_recommendations.py`
+3. Access via API: `/recommendations/{product_id}` or `/scraped-products/search`
+
 ## Quick start (development)
 
 Prerequisites:
@@ -54,13 +91,17 @@ cd Backend
 pip install -r requirements.txt
 # create and configure your PostgreSQL DB, then
 source .venv/bin/activate
-python script/create_databases.py
+python scripts/create_databases.py
 python scripts/setup_database.py
+
+# Optional: Populate with sample data and setup AI
+python scripts/scrape_and_store.py    # Scrapes external products
+python scripts/setup_recommendations.py  # Sets up AI embeddings
+
 python main.py
 
 # Terminal B: start frontend
 cd Frontend
-npm run build
 npm install
 cp .env.local.example .env.local
 # change API_URL inside .env.local if needed
@@ -69,24 +110,33 @@ npm run dev
 
 Open the frontend at http://localhost:3000 and the backend API docs at http://localhost:8000/docs
 
+### Testing AI Features
+After setup, test the recommendation system:
+- Visit `/docs` and try `/recommendations/{product_id}` endpoints
+- Search scraped products via `/scraped-products/search?query=book`
+- Test different recommendation types: `price`, `category`, `description`, `hybrid`
+
 ## Repository layout
 
-- Backend/
+- **Backend/**
   - `main.py` — FastAPI app entry point
   - `app/`
-    - `api/` — routers (auth, products, stock_movements, stock_transfers, warehouses)
+    - `api/` — routers (auth, products, stock_movements, stock_transfers, warehouses, scraped_products, recommendations)
     - `core/` — config, database session, security utilities
-    - `models/` — SQLAlchemy models
+    - `models/` — SQLAlchemy models (includes ScrapData for external products)
     - `schemas/` — Pydantic schemas
-    - `services/` — business logic
-  - `scripts/` — helper scripts (e.g. DB setup)
+    - `services/` — business logic (includes recommendation_service for AI)
+  - `scripts/` — helper scripts (DB setup, scraping, AI embeddings)
+    - `scrape_and_store.py` — Web scraper for external product data
+    - `setup_recommendations.py` — AI embedding generation and caching
+  - `data/embeddings/` — Cached AI embeddings and metadata (generated)
   - `tests/` — pytest test suite and fixtures
-  - `requirements.txt` — Python dependencies
+  - `requirements.txt` — Python dependencies (includes sentence-transformers, scikit-learn)
 
-- Frontend/
+- **Frontend/**
   - `package.json` — scripts and dependencies
   - `src/` — Next.js app (App Router)
-    - `app/` — pages and routes (dashboard, login, products...)
+    - `app/` — pages and routes (dashboard, login, products, recommendations...)
     - `components/` — UI components
     - `context/` — Auth context
     - `lib/` — API client + services
@@ -265,9 +315,6 @@ Frontend: No unit tests included by default in this snapshot. Add tests with Jes
 3. Add tests for new features/bug fixes
 4. Open a pull request with a clear description
 
-## License
-
-MIT — see LICENSE file if present.
 
 ---
 
@@ -301,7 +348,6 @@ This repository contains two main folders:
 - Tests
 - Environment variables
 - Contributing
-- License
 
 ## Features
 
