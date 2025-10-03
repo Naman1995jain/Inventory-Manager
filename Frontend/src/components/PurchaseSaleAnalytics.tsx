@@ -198,7 +198,7 @@ export default function PurchaseSaleAnalytics({ className = '' }: PurchaseSaleAn
         {/* Recent Transactions */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-md font-medium text-gray-900">Recent Transactions</h4>
+            <h4 className="text-md font-medium text-gray-900">Purchase & Sale</h4>
             {data.recentTransactions.length > 4 && (
               <button
                 onClick={() => setIsTransactionsModalOpen(true)}

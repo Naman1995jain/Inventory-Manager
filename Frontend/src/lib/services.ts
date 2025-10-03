@@ -62,6 +62,11 @@ export const productService = {
   async deleteProduct(id: number): Promise<void> {
     await api.delete(`/products/${id}`);
   },
+
+  async getDeletedProducts(params: Partial<PaginationParams> = {}): Promise<ProductListResponse> {
+    const response = await api.get<ProductListResponse>('/products/deleted', { params });
+    return response.data;
+  },
 };
 
 // Stock Movement Services

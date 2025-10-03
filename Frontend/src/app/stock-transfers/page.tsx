@@ -4,6 +4,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import Layout from '@/components/Layout';
 import StockTransferList from '@/components/StockTransferList';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import WebSocketStatus from '@/components/WebSocketStatus';
 import { Toaster } from 'react-hot-toast';
 
 export default function StockTransfersPage() {
@@ -12,6 +13,7 @@ export default function StockTransfersPage() {
       <ProtectedRoute>
         <Layout>
           <Toaster position="top-right" />
+          <WebSocketStatus showText={false} />
           <StockTransferList />
         </Layout>
       </ProtectedRoute>

@@ -100,17 +100,17 @@ show_status() {
     # Check backend health
     echo -n "Backend API: "
     if curl -f -s http://localhost:8000/health > /dev/null; then
-        echo -e "${GREEN}✅ Healthy${NC}"
+        echo -e "${GREEN} Healthy${NC}"
     else
-        echo -e "${RED}❌ Unhealthy${NC}"
+        echo -e "${RED} Unhealthy${NC}"
     fi
     
     # Check frontend
     echo -n "Frontend: "
     if curl -f -s http://localhost:3000 > /dev/null; then
-        echo -e "${GREEN}✅ Healthy${NC}"
+        echo -e "${GREEN} Healthy${NC}"
     else
-        echo -e "${RED}❌ Unhealthy${NC}"
+        echo -e "${RED} Unhealthy${NC}"
     fi
 }
 
@@ -121,15 +121,15 @@ show_access_info() {
     echo "=================================================="
     echo ""
     echo "Access your application:"
-    echo "📱 Frontend:       http://localhost:3000"
-    echo "🔗 Backend API:    http://localhost:8000"
-    echo "📚 API Docs:       http://localhost:8000/docs"
-    echo "🗄️  pgAdmin:       http://localhost:8080 (admin tools)"
+    echo " Frontend:       http://localhost:3000"
+    echo " Backend API:    http://localhost:8000"
+    echo " API Docs:       http://localhost:8000/docs"
+    echo "  pgAdmin:       http://localhost:8080 (admin tools)"
     echo ""
     echo "Useful commands:"
-    echo "📊 View logs:      docker-compose logs -f"
-    echo "🛑 Stop services:  docker-compose down"
-    echo "🔄 Restart:        docker-compose restart"
+    echo " View logs:      docker-compose logs -f"
+    echo " Stop services:  docker-compose down"
+    echo " Restart:        docker-compose restart"
     echo ""
     echo -e "${NC}"
 }

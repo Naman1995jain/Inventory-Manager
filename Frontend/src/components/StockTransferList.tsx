@@ -318,13 +318,15 @@ export default function StockTransferList() {
                       <div className="text-xs">{format(new Date(transfer.created_at), 'HH:mm')}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {canEditTransfer(transfer) ? (
-                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                          You
+                      {transfer.creator?.email ? (
+                        <span className={`inline-flex items-center px-2 py-1 text-xs font-medium ${
+                          canEditTransfer(transfer) ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                        } rounded-full`}>
+                          {transfer.creator.email}
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-                          Other User
+                          Unknown
                         </span>
                       )}
                     </td>

@@ -102,7 +102,7 @@ def main():
     if not create_default_warehouses():
         sys.exit(1)
     
-    logger.info("✅ Database setup completed successfully!")
+    logger.info(" Database setup completed successfully!")
     logger.info("You can now start the application with: uvicorn main:app --reload")
 
 if __name__ == "__main__":

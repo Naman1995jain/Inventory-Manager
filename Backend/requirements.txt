@@ -26,3 +26,7 @@ torchaudio
 sentence-transformers
 numpy
 scikit-learn
+websockets
+websocket-client
+wsaccel
+websocket-client[http-proxy]

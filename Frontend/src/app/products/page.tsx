@@ -4,6 +4,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import Layout from '@/components/Layout';
 import ProductList from '@/components/ProductList';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import WebSocketStatus from '@/components/WebSocketStatus';
 import { Toaster } from 'react-hot-toast';
 
 export default function ProductsPage() {
@@ -12,6 +13,7 @@ export default function ProductsPage() {
       <ProtectedRoute>
         <Layout>
           <Toaster position="top-right" />
+          <WebSocketStatus showText={false} />
           <ProductList />
         </Layout>
       </ProtectedRoute>

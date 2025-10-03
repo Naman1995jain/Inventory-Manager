@@ -86,35 +86,34 @@ export default function StockMovementList() {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold text-gray-900">Stock Movements</h1>
-          <p className="mt-2 text-sm text-gray-700">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Stock Movements</h1>
+          <p className="mt-1 text-sm text-gray-600">
             Track all inventory movements including purchases, sales, adjustments, and transfers.
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Link
-            href="/stock-movements/new"
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Record Movement
-          </Link>
-        </div>
+        <Link
+          href="/stock-movements/new"
+          className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Record Movement
+        </Link>
       </div>
 
       {/* Search */}
-      <div className="mt-6">
-        <form onSubmit={handleSearch} className="flex gap-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <form onSubmit={handleSearch} className="flex flex-col gap-3 sm:flex-row sm:gap-4">
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Search movements..."
+                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                placeholder="Search movements by product or reference..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -122,131 +121,225 @@ export default function StockMovementList() {
           </div>
           <button
             type="submit"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
           >
             Search
           </button>
         </form>
       </div>
 
-      {/* Movements Table */}
-      <div className="mt-8 flex flex-col">
-        <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-              {isLoading ? (
-                <div className="bg-white px-6 py-20">
-                  <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                    <p className="mt-2 text-sm text-gray-500">Loading movements...</p>
-                  </div>
-                </div>
-              ) : (
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Product
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Type
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Quantity
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cost
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Reference
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Creator
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Notes
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {movements.map((movement) => (
-                      <tr key={movement.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {format(new Date(movement.created_at), 'MMM dd, yyyy')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {movement.product?.name || 'Unknown Product'}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {movement.product?.sku}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            {getMovementIcon(movement.movement_type)}
-                            <span className={`ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMovementTypeColor(movement.movement_type)}`}>
-                              {movement.movement_type.replace('_', ' ')}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <span className={movement.quantity > 0 ? 'text-green-600' : 'text-red-600'}>
-                            {movement.quantity > 0 ? '+' : ''}{movement.quantity}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {movement.total_cost ? `$${movement.total_cost}` : '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {movement.reference_number || '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {movement.creator?.email ? (
-                            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium ${
-                              canEditMovement(movement) ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                            } rounded-full`}>
-                              {movement.creator.email}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
-                              Unknown
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {movement.notes || '-'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+      {/* Mobile Cards */}
+      <div className="space-y-4 md:hidden">
+        {isLoading ? (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-200 border-t-blue-600"></div>
+              <p className="mt-3 text-sm text-gray-600">Loading movements...</p>
             </div>
           </div>
-        </div>
+        ) : movements.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            <div className="text-center">
+              <TrendingUp className="mx-auto h-12 w-12 text-gray-300" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No movements found</h3>
+              <p className="mt-1 text-sm text-gray-500">Get started by recording your first stock movement.</p>
+              <div className="mt-6">
+                <Link
+                  href="/stock-movements/new"
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Record Movement
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          movements.map((movement) => (
+            <div key={movement.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200">
+              {/* Movement Header */}
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2 mb-1">
+                    {getMovementIcon(movement.movement_type)}
+                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${getMovementTypeColor(movement.movement_type)}`}>
+                      {movement.movement_type.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 truncate">
+                    {movement.product?.name || 'Unknown Product'}
+                  </h3>
+                  <p className="text-sm text-gray-500">{movement.product?.sku}</p>
+                </div>
+                <div className="ml-3 flex-shrink-0 text-right">
+                  <div className={`text-lg font-bold ${movement.quantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {movement.quantity > 0 ? '+' : ''}{movement.quantity}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {format(new Date(movement.created_at), 'MMM dd, yyyy')}
+                  </div>
+                </div>
+              </div>
+
+              {/* Movement Details */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                  <p className="text-xs font-medium text-gray-500">Total Cost</p>
+                  <p className="text-sm text-gray-900">{movement.total_cost ? `$${movement.total_cost}` : '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500">Reference</p>
+                  <p className="text-sm text-gray-900">{movement.reference_number || '-'}</p>
+                </div>
+              </div>
+
+              {/* Creator Info */}
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-xs font-medium text-gray-500">Created By</p>
+                  <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
+                    canEditMovement(movement) ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {movement.creator?.email || 'Unknown'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Notes */}
+              {movement.notes && (
+                <div className="border-t border-gray-200 pt-3">
+                  <p className="text-xs font-medium text-gray-500 mb-1">Notes</p>
+                  <p className="text-sm text-gray-700">{movement.notes}</p>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {isLoading ? (
+          <div className="px-6 py-20">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-200 border-t-blue-600"></div>
+              <p className="mt-3 text-sm text-gray-600">Loading movements...</p>
+            </div>
+          </div>
+        ) : movements.length === 0 ? (
+          <div className="px-6 py-20">
+            <div className="text-center">
+              <TrendingUp className="mx-auto h-12 w-12 text-gray-300" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No movements found</h3>
+              <p className="mt-1 text-sm text-gray-500">Get started by recording your first stock movement.</p>
+            </div>
+          </div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Product
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Quantity
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Cost
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Reference
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Creator
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Notes
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {movements.map((movement) => (
+                <tr key={movement.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {format(new Date(movement.created_at), 'MMM dd, yyyy')}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {movement.product?.name || 'Unknown Product'}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {movement.product?.sku}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      {getMovementIcon(movement.movement_type)}
+                      <span className={`ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMovementTypeColor(movement.movement_type)}`}>
+                        {movement.movement_type.replace('_', ' ')}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <span className={movement.quantity > 0 ? 'text-green-600' : 'text-red-600'}>
+                      {movement.quantity > 0 ? '+' : ''}{movement.quantity}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {movement.total_cost ? `$${movement.total_cost}` : '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {movement.reference_number || '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {movement.creator?.email ? (
+                      <span className={`inline-flex items-center px-2 py-1 text-xs font-medium ${
+                        canEditMovement(movement) ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                      } rounded-full`}>
+                        {movement.creator.email}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                        Unknown
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {movement.notes || '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3 flex items-center justify-between sm:px-6">
           <div className="flex-1 flex justify-between sm:hidden">
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               Previous
             </button>
+            <span className="text-sm text-gray-700 flex items-center">
+              Page {page} of {totalPages}
+            </span>
             <button
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               Next
             </button>
@@ -254,7 +347,7 @@ export default function StockMovementList() {
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">{(page - 1) * 20 + 1}</span> to{' '}
+                Showing <span className="font-medium">{(page - 1) * 1 + 1}</span> to{' '}
                 <span className="font-medium">
                   {Math.min(page * 20, total)}
                 </span>{' '}
@@ -266,14 +359,14 @@ export default function StockMovementList() {
                 <button
                   onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => setPage(Math.min(totalPages, page + 1))}
                   disabled={page === totalPages}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   Next
                 </button>

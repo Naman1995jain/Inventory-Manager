@@ -34,7 +34,7 @@ def create_databases():
     
     try:
         # Connect to the default 'postgres' database
-        logger.info("🔌 Connecting to PostgreSQL server...")
+        logger.info(" Connecting to PostgreSQL server...")
         conn = psycopg2.connect(
             host=db_host,
             port=db_port,
@@ -45,7 +45,7 @@ def create_databases():
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cursor = conn.cursor()
         
-        logger.info("✅ Connected to PostgreSQL server successfully")
+        logger.info(" Connected to PostgreSQL server successfully")
         
         # Create each database
         for db_name in databases:
@@ -62,27 +62,27 @@ def create_databases():
                 else:
                     # Create database
                     cursor.execute(f'CREATE DATABASE "{db_name}"')
-                    logger.info(f"✅ Created database '{db_name}' successfully")
+                    logger.info(f" Created database '{db_name}' successfully")
                     
             except Exception as e:
-                logger.error(f"❌ Failed to create database '{db_name}': {e}")
+                logger.error(f" Failed to create database '{db_name}': {e}")
                 return False
         
         cursor.close()
         conn.close()
         
-        logger.info("🎉 All databases created successfully!")
+        logger.info(" All databases created successfully!")
         return True
         
     except psycopg2.OperationalError as e:
-        logger.error(f"❌ Failed to connect to PostgreSQL: {e}")
+        logger.error(f" Failed to connect to PostgreSQL: {e}")
         logger.error("Please ensure:")
         logger.error("1. PostgreSQL server is running")
         logger.error("2. Database credentials in .env are correct")
         logger.error("3. You can connect to PostgreSQL with the provided credentials")
         return False
     except Exception as e:
-        logger.error(f"❌ Unexpected error: {e}")
+        logger.error(f" Unexpected error: {e}")
         return False
 
 def main():
@@ -90,10 +90,10 @@ def main():
     logger.info("🗄️  Creating databases for Inventory Management System...")
     
     if create_databases():
-        logger.info("✅ Database creation completed successfully!")
+        logger.info(" Database creation completed successfully!")
         logger.info("You can now run: python scripts/setup_database.py")
     else:
-        logger.error("❌ Database creation failed")
+        logger.error(" Database creation failed")
         sys.exit(1)
 
 if __name__ == "__main__":
