@@ -2,10 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
+import asyncio
 from app.core.database import get_database
 from app.core.dependencies import get_current_active_user
 from app.core.permissions import OwnershipValidator
 from app.services.stock_service import StockService
+from app.api.websocket import broadcast_stock_movement, broadcast_low_stock_alert
+from app.models.models import Product
 from app.schemas.schemas import (
     StockMovement, StockMovementCreate, StockMovementListResponse,
     PaginationParams, User
@@ -59,6 +62,11 @@ async def create_stock_movement(
     
     try:
         movement = stock_service.create_stock_movement(movement_data, current_user.id)
+        movement_dict = StockMovement.model_validate(movement).model_dump()
+        
+        # INSTANT WebSocket broadcast
+        await broadcast_stock_movement(movement_dict)
+        
         return StockMovement.model_validate(movement)
     except ValueError as e:
         raise HTTPException(

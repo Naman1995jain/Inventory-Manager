@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
+import asyncio
 from app.core.database import get_database
 from app.core.dependencies import get_current_active_user
 from app.core.permissions import OwnershipValidator
 from app.services.stock_service import StockService
+from app.api.websocket import broadcast_stock_transfer
 from app.schemas.schemas import (
     StockTransfer, StockTransferCreate, StockTransferUpdate, StockTransferListResponse,
     PaginationParams, User
@@ -28,6 +30,14 @@ async def create_stock_transfer(
     
     try:
         transfer = stock_service.create_stock_transfer(transfer_data, current_user.id)
+        transfer_dict = StockTransfer.model_validate(transfer).model_dump()
+        
+        # INSTANT WebSocket broadcast
+        await broadcast_stock_transfer({
+            "action": "created",
+            "transfer": transfer_dict
+        })
+        
         return StockTransfer.model_validate(transfer)
     except ValueError as e:
         raise HTTPException(
@@ -92,6 +102,15 @@ async def complete_stock_transfer(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Transfer not found"
             )
+        
+        transfer_dict = StockTransfer.model_validate(transfer).model_dump()
+        
+        # INSTANT WebSocket broadcast
+        await broadcast_stock_transfer({
+            "action": "completed",
+            "transfer": transfer_dict
+        })
+        
         return StockTransfer.model_validate(transfer)
     except ValueError as e:
         raise HTTPException(
@@ -118,6 +137,15 @@ async def cancel_stock_transfer(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Transfer not found"
             )
+        
+        transfer_dict = StockTransfer.model_validate(transfer).model_dump()
+        
+        # INSTANT WebSocket broadcast
+        await broadcast_stock_transfer({
+            "action": "cancelled",
+            "transfer": transfer_dict
+        })
+        
         return StockTransfer.model_validate(transfer)
     except ValueError as e:
         raise HTTPException(
