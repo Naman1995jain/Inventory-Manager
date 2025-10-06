@@ -91,9 +91,6 @@ cd Backend
 pip install -r requirements.txt
 # create and configure your PostgreSQL DB, then
 source .venv/bin/activate
-python scripts/create_databases.py
-python scripts/setup_database.py
-# else 
 cd scripts  ./setup_admin.sh  #for macos 
 cd scripts  bash setup_admin.sh #for windows 
 
