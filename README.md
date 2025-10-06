@@ -93,6 +93,9 @@ pip install -r requirements.txt
 source .venv/bin/activate
 python scripts/create_databases.py
 python scripts/setup_database.py
+# else 
+cd scripts  ./setup_admin.sh  #for macos 
+cd scripts  bash setup_admin.sh #for windows 
 
 # Optional: Populate with sample data and setup AI
 python scripts/scrape_and_store.py    # Scrapes external products
