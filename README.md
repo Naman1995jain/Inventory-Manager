@@ -177,21 +177,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 BCRYPT_ROUNDS=12
 ```
 
-4. Create databases in PostgreSQL:
-
-```sql
-CREATE DATABASE inventory_db;
-CREATE DATABASE inventory_test_db;
-```
-
-5. Initialize DB (script provided):
+4. Initialize DB (script provided):
 
 ```bash
 cd scripts  ./setup_admin.sh  #for macos 
 cd scripts  bash setup_admin.sh #for windows 
 ```
 
-6. Run development server:
+5. Run development server:
 
 ```bash
 python main.py
@@ -201,14 +194,6 @@ API docs: http://localhost:8000/docs (OpenAPI/Swagger)
 
 Common backend commands
 
-```bash
-# run tests
-cd Backend
-pytest -v
-
-# run with explicit host/port
-python main.py
-```
 
 ## Frontend — Setup and run (detailed)
 
