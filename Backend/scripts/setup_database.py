@@ -88,7 +88,7 @@ def create_default_warehouses():
 
 def main():
     """Main setup function"""
-    logger.info("🚀 Starting database setup...")
+    logger.info(" Starting database setup...")
     
     # Check database connection
     if not check_database_connection():

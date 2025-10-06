@@ -56,9 +56,23 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   const subscribedChannelsRef = useRef<Set<string>>(new Set());
 
   const getWebSocketUrl = () => {
+    // Prefer explicit API URL injected at build/runtime (works in Docker)
+    const apiUrl = (process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || '').replace(/\/$/, '');
+
+    if (apiUrl) {
+      try {
+        const url = new URL(apiUrl);
+        const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+        return `${protocol}//${url.host}${url.pathname.replace(/\/$/, '')}/ws`;
+      } catch (err) {
+        // fallback to original behavior
+        console.error('Invalid NEXT_PUBLIC_API_URL, falling back to window location', err);
+      }
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = process.env.NODE_ENV === 'production' 
-      ? window.location.host 
+    const host = process.env.NODE_ENV === 'production'
+      ? window.location.host
       : 'localhost:8000';
     return `${protocol}//${host}/api/v1/ws`;
   };

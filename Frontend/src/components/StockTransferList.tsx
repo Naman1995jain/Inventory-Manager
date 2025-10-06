@@ -20,7 +20,8 @@ export default function StockTransferList() {
 
   // Helper function to check if current user can edit this transfer
   const canEditTransfer = (transfer: StockTransfer) => {
-    return user && transfer.created_by === user.id;
+    // Allow the creator OR an admin to act on the transfer
+    return user && (transfer.created_by === user.id || user.is_admin);
   };
 
   const fetchTransfers = async () => {
@@ -352,10 +353,11 @@ export default function StockTransferList() {
                             </>
                           ) : (
                             <>
-                              <span className="text-gray-300 cursor-not-allowed" title="You can only complete your own transfers">
+                              {/* Show disabled icons with clearer messages for non-admins */}
+                              <span className="text-gray-300 cursor-not-allowed" title={user?.is_admin ? 'Action not available' : 'Only admins or the transfer creator can perform this action'}>
                                 <CheckCircle className="h-4 w-4" />
                               </span>
-                              <span className="text-gray-300 cursor-not-allowed" title="You can only cancel your own transfers">
+                              <span className="text-gray-300 cursor-not-allowed" title={user?.is_admin ? 'Action not available' : 'Only admins or the transfer creator can perform this action'}>
                                 <XCircle className="h-4 w-4" />
                               </span>
                             </>
