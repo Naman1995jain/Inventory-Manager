@@ -247,7 +247,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 BCRYPT_ROUNDS=12
 ```
 
-Frontend `.env.local` example (Frontend/.env.local):
+Frontend `.env` example (Frontend/.env):
 
 ```env
 API_URL=http://localhost:8000/api/v1
