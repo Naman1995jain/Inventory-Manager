@@ -69,13 +69,11 @@ init_database() {
         exit 1
     fi
 
-    echo " Running scrape_and_store.py..."
-    if python scripts/scrape_and_store.py; then
-        echo " Scraping and storing completed"
-    else
-        echo " Scraping and storing failed"
-        exit 1
-    fi
+    # NOTE: Scraping and recommendation setup are moved to a separate one-off
+    # "scraper" service in docker-compose so they don't block the API startup.
+    # If you want to run them manually inside the container, run:
+    #   python scripts/scrape_and_store.py
+    # or use the provided "scraper" service (see docker-compose.yml).
 
     echo " Database initialization completed successfully!"
 }

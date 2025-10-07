@@ -33,6 +33,7 @@ services:
       context: ./Backend
       dockerfile: Dockerfile
       target: production
+    image: inventory-backend
     container_name: inventory-backend
     restart: unless-stopped
     user: "appuser"
@@ -71,14 +72,11 @@ services:
       - inventory-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      # Check every 10 minutes to minimize interference
-      interval: 600s
-      # Allow 10 minutes for each health check to complete
-      timeout: 600s
-      # Allow unlimited retries (very high number means it will keep trying)
-      retries: 999
-      # No time limit - wait as long as needed for startup
-      start_period: 7200s
+      # Faster healthcheck for docker orchestration. Keep reasonable retries.
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
   # Frontend Service
   frontend:
@@ -107,6 +105,29 @@ services:
       timeout: 30s
       retries: 3
       start_period: 30s
+
+  # One-off scraper service: runs the scrape_and_store job after backend & frontend are healthy
+  scraper:
+    image: inventory-backend
+    container_name: inventory-scraper
+    user: "appuser"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - inventory-network
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["python scripts/scrape_and_store.py"]
+    restart: "no"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-dragon}
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-dragon}@postgres:5432/inventory_db
+    volumes:
+      - backend_logs:/app/logs
+      - backend_uploads:/app/uploads
 
   # Optional: pgAdmin for database administration
   pgadmin:
