@@ -31,12 +31,12 @@ async def get_current_user_websocket(websocket: WebSocket, token: str, db: Sessi
         payload = verify_token(token)
         if payload is None:
             return None
-            
-        user_email: str = payload.get("email")
-        if user_email is None:
+
+        user_id = payload.get("user_id")
+        if user_id is None:
             return None
-            
-        user = db.query(User).filter(User.email == user_email).first()
+
+        user = db.query(User).filter(User.id == user_id).first()
         return user
     except Exception as e:
         logger.error(f"WebSocket authentication error: {e}")

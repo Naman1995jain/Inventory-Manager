@@ -15,14 +15,11 @@ def get_current_user(
     """Get current authenticated user"""
     token = credentials.credentials
     token_data = verify_token(token)
-    
-    # Try to find user by user_id first (if available), then by email
+
+    # verify_token now returns only `user_id`. Use it to load the user from DB.
     user = None
     if token_data.get("user_id"):
         user = db.query(User).filter(User.id == token_data["user_id"]).first()
-    
-    if not user:
-        user = db.query(User).filter(User.email == token_data["email"]).first()
     
     if user is None:
         raise HTTPException(
@@ -31,7 +28,8 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Convert to schema and ensure is_admin is set correctly
+    # Convert to schema and return. Any authorization decisions should consult
+    # the returned user object (user.is_admin) after fetching from DB.
     user_schema = UserSchema.model_validate(user)
     return user_schema
 

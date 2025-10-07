@@ -52,8 +52,12 @@ async def login(
         )
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    # Create a token with only the minimal required claim (user_id).
+    # Any additional user details (email, is_admin) must be fetched from DB
+    # using the user_id returned by verify_token. This avoids leaking
+    # sensitive fields in the token payload.
     access_token = create_access_token(
-        data={"sub": user.email, "user_id": user.id, "is_admin": user.is_admin}, expires_delta=access_token_expires
+        data={"user_id": user.id}, expires_delta=access_token_expires
     )
     
     # Log successful login

@@ -20,8 +20,14 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """Create a JWT access token"""
-    to_encode = data.copy()
+    """Create a JWT access token.
+
+    Only minimal, non-sensitive claims should be encoded. We keep `user_id`
+    (an integer) and `exp` (expiry). Avoid embedding email/roles/is_admin
+    in the token payload to reduce exposure if tokens are decoded client-side.
+    """
+    # Only allow a minimal, explicit set of claims
+    to_encode = {"user_id": data.get("user_id")}
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -32,19 +38,22 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return encoded_jwt
 
 def verify_token(token: str) -> dict:
-    """Verify and decode a JWT token"""
+    """Verify and decode a JWT token.
+
+    Returns a minimal dict with `user_id`. Callers that need additional
+    information (email, is_admin) should fetch it from the database using
+    `user_id`.
+    """
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        email: str = payload.get("sub")
         user_id: int = payload.get("user_id")
-        is_admin: bool = payload.get("is_admin", False)
-        if email is None:
+        if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Could not validate credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return {"email": email, "user_id": user_id, "is_admin": is_admin}
+        return {"user_id": user_id}
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
