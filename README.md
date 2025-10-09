@@ -38,6 +38,12 @@ The diagram below illustrates the high-level flow between the Frontend, Backend 
 
 This flow diagram is helpful for new contributors and reviewers to quickly understand request paths, authentication, and how inventory changes travel through the system.
 
+## 🏗️ Architecture diagram
+
+A high-level architecture diagram for the whole application (Frontend, Backend, Database, and supporting services):
+
+![Architecture Diagram](images/diagram.png)
+
 ## 🤖 AI & Data Features
 
 ### Web Scraping System
