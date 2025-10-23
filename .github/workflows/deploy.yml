@@ -62,25 +62,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup SSH
-      - name: Setup SSH
+      # 2️⃣ Setup SSH key
+      - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
 
-      # 3️⃣ Copy docker-compose.yml and .env to server
+      # 3️⃣ Copy docker-compose.yml and .env to server using SCP
       - name: Copy docker-compose files to server
-        run: |
-          scp -i ~/.ssh/id_ed25519 docker-compose.yml .env \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USER }}/inventory-manager
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: "${{ secrets.SERVER_HOST }}"
+          username: "${{ secrets.SERVER_USER }}"
+          key: ~/.ssh/id_ed25519
+          source: "docker-compose.yml,.env"
+          target: "/home/${{ secrets.SERVER_USER }}/inventory-manager"
 
-      # 4️⃣ Deploy using SSH
+      # 4️⃣ Deploy on the server using SSH
       - name: Deploy to Production
-        run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: "${{ secrets.SERVER_HOST }}"
+          username: "${{ secrets.SERVER_USER }}"
+          key: ~/.ssh/id_ed25519
+          script: |
             set -e
             mkdir -p ~/inventory-manager
             cd ~/inventory-manager
@@ -88,10 +95,10 @@ jobs:
             # Login to GitHub Container Registry
             echo "${GITHUB_TOKEN}" | docker login ghcr.io -u $USER --password-stdin
 
-            # Pull latest images
+            # Pull latest Docker images
             docker-compose pull
 
-            # Start containers
+            # Start containers (remove orphans)
             docker-compose up -d --remove-orphans
 
             # Optional: prune dangling images
@@ -105,6 +112,5 @@ jobs:
             docker logs inventory-backend || true
             echo "=== Frontend Logs ==="
             docker logs inventory-frontend || true
-          EOF
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
