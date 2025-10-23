@@ -78,7 +78,7 @@ jobs:
           username: "${{ secrets.SERVER_USER }}"
           key: ~/.ssh/id_ed25519
           script: |
-            mkdir -p /home/${{ secrets.SERVER_USER }}/Inventory-Manager
+            mkdir -p /home/cloud/Inventory-Manager
 
       # 4️⃣ Copy docker-compose.yml and .env to server
       - name: Copy docker-compose files to server
@@ -88,7 +88,7 @@ jobs:
           username: "${{ secrets.SERVER_USER }}"
           key: ~/.ssh/id_ed25519
           source: "docker-compose.yml,.env"
-          target: "/home/${{ secrets.SERVER_USER }}/Inventory-Manager"
+          target: "/home/cloud/Inventory-Manager"
 
       # 5️⃣ Deploy using SSH
       - name: Deploy to Production
@@ -99,7 +99,7 @@ jobs:
           key: ~/.ssh/id_ed25519
           script: |
             set -e
-            cd /home/${{ secrets.SERVER_USER }}/Inventory-Manager
+            cd /home/cloud/Inventory-Manager
 
             # Login to GitHub Container Registry
             echo "${GITHUB_TOKEN}" | docker login ghcr.io -u $USER --password-stdin
