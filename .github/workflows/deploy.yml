@@ -54,42 +54,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      # 2️⃣ Debug: Check secret values (length only, for security)
-      - name: Debug secrets
-        run: |
-          echo "SERVER_HOST length: ${#SERVER_HOST}"
-          echo "SERVER_USER length: ${#SERVER_USER}"
-          echo "SSH_PRIVATE_KEY length: ${#SSH_PRIVATE_KEY}"
-          echo "Testing if SERVER_HOST is empty: '${SERVER_HOST}'"
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      
-      # 3️⃣ Setup SSH Key
-      - name: Setup SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          
-          # Write SSH private key
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          
-          # Add server to known_hosts
-          echo "Adding $SERVER_HOST to known_hosts..."
-          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts 2>&1 || echo "ssh-keyscan failed"
-          
-          # Test connection
-          echo "Testing SSH connection to $SERVER_USER@$SERVER_HOST..."
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no "$SERVER_USER@$SERVER_HOST" "echo 'SSH connection works!'" || echo "SSH test failed"
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        shell: bash
-      
-      # 4️⃣ Copy docker-compose.yml and .env to server
+      # 2️⃣ Copy docker-compose.yml and .env to server
       - name: Copy docker-compose files to server
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -99,7 +64,7 @@ jobs:
           source: "docker-compose.yml,.env"
           target: "/home/${{ secrets.SERVER_USER }}/inventory-manager"
       
-      # 5️⃣ Deploy using SSH
+      # 3️⃣ Deploy using SSH
       - name: Deploy to Production
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -119,3 +84,37 @@ jobs:
             docker image prune -f
             # Show container status
             docker ps -a
+```
+
+## But First: Verify Your Secrets Are Set Correctly
+
+**Go to GitHub and check your secrets:**
+
+1. Navigate to: `https://github.com/YOUR_USERNAME/YOUR_REPO/settings/secrets/actions`
+2. You should see three secrets listed:
+   - `SERVER_HOST`
+   - `SERVER_USER`
+   - `SSH_PRIVATE_KEY`
+
+3. **Click "Update" on each one** and verify:
+
+**SERVER_HOST:**
+```
+34.171.15.20
+```
+(No quotes, no spaces, no extra lines)
+
+**SERVER_USER:**
+```
+namanjain34710
+```
+
+**SSH_PRIVATE_KEY:**
+```
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACASv7NH+zMBqmFN4hmPm3G8lJfE+CSBRugDxYvzKBxmfwAAAJDkdGLt5HRi
+7QAAAAtzc2gtZWQyNTUxOQAAACASv7NH+zMBqmFN4hmPm3G8lJfE+CSBRugDxYvzKBxmfw
+AAAECwZhDk4MATP3gW19shdLQ8cU+vtPl+NlF5tmiFdRWznxK/s0f7MwGqYU3iGY+bcbyU
+l8T4JIFG6APFi/MoHGZ/AAAADWdpdGh1Yi1hY3Rpb24=
+-----END OPENSSH PRIVATE KEY-----
