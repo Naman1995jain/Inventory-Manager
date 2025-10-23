@@ -85,7 +85,7 @@ services:
       dockerfile: Dockerfile
       target: production
       args:
-        API_URL: http://localhost:8000/api/v1
+        API_URL: http://34.171.15.20:8000/api/v1
     container_name: inventory-frontend
     restart: unless-stopped
     depends_on:
@@ -93,7 +93,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      API_URL: ${API_URL:-http://localhost:8000/api/v1}
+      API_URL: ${API_URL:-http://34.171.15.20:8000/api/v1}
       NEXT_TELEMETRY_DISABLED: 1
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
