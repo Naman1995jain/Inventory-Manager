@@ -13,7 +13,7 @@ jobs:
       packages: write
 
     steps:
-      # 1️⃣ Checkout the repo
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -59,17 +59,23 @@ jobs:
     environment: production
 
     steps:
-      # 1️⃣ Checkout repo (optional)
+      # 1️⃣ Checkout repository (optional)
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup SSH key properly
+      # 2️⃣ Setup SSH Key and test connection
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          # Save private key from secret, remove any \r (Windows line endings)
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+
+          # Add server to known_hosts to avoid host verification prompt
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+          # Test SSH connection
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection works!'"
         shell: bash
 
       # 3️⃣ Copy docker-compose.yml and .env to server
@@ -96,7 +102,7 @@ jobs:
             # Login to GHCR
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Pull latest images
+            # Pull latest Docker images
             docker-compose pull
 
             # Start containers
