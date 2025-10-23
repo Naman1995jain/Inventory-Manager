@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Set lowercase owner for GHCR
+      # 2️⃣ Set lowercase repository owner for GHCR
       - name: Set lowercase repository owner
         id: lowercase
         run: |
@@ -67,7 +67,7 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          # Save private key from secret, remove any \r (Windows line endings)
+          # Save private key from secret and remove any Windows line endings
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
@@ -99,7 +99,7 @@ jobs:
             set -e
             cd /home/${{ secrets.SERVER_USER }}/inventory-manager
 
-            # Login to GHCR
+            # Login to GitHub Container Registry
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             # Pull latest Docker images
@@ -111,5 +111,5 @@ jobs:
             # Optional: prune old images
             docker image prune -f
 
-            # Optional: show container status
+            # Show container status
             docker ps -a
