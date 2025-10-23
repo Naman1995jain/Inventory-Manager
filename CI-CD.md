@@ -4,7 +4,7 @@ Overview
 --------
 This project uses Docker Compose to run Backend, Frontend and Postgres. The provided GitHub Actions workflow (.github/workflows/deploy.yml) performs a push-triggered SSH deployment: it connects to your server, fetches the latest code, and runs docker compose up -d --build on the server.
 
-What the workflow does
+What the workflow doesok
 - Checks out the repo
 - Sets up SSH key material from GitHub Secrets
 - Connects to your server and resets the working tree to the pushed branch
