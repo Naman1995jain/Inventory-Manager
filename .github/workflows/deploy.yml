@@ -1,18 +1,22 @@
 name: CI/CD Deploy to Production
+
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+
     steps:
       # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
+
       # 2️⃣ Set lowercase repository owner for GHCR
       - name: Set lowercase repository owner
         id: lowercase
@@ -20,6 +24,7 @@ jobs:
           lower_owner=$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
           echo "owner=$lower_owner" >> $GITHUB_OUTPUT
           echo "Lowercase owner: $lower_owner"
+
       # 3️⃣ Login to GitHub Container Registry
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -27,6 +32,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       # 4️⃣ Build & push Backend Docker image
       - name: Build and push Backend Docker image
         uses: docker/build-push-action@v5
@@ -35,6 +41,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ steps.lowercase.outputs.owner }}/inventory-backend:latest
           target: production
+
       # 5️⃣ Build & push Frontend Docker image
       - name: Build and push Frontend Docker image
         uses: docker/build-push-action@v5
@@ -45,76 +52,60 @@ jobs:
           target: production
           build-args: |
             API_URL=${{ secrets.API_URL }}
+
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     environment: production
+
     steps:
       # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       # 2️⃣ Copy docker-compose.yml and .env to server
       - name: Copy docker-compose files to server
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: "${{ secrets.SERVER_HOST }}"
+          username: "${{ secrets.SERVER_USER }}"
+          key: "${{ secrets.SSH_PRIVATE_KEY }}"
           source: "docker-compose.yml,.env"
           target: "/home/${{ secrets.SERVER_USER }}/inventory-manager"
-      
+
       # 3️⃣ Deploy using SSH
       - name: Deploy to Production
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: "${{ secrets.SERVER_HOST }}"
+          username: "${{ secrets.SERVER_USER }}"
+          key: "${{ secrets.SSH_PRIVATE_KEY }}"
+          # Optional: retry up to 3 times in case of temporary network issues
+          retry: 3
           script: |
             set -e
+
+            # Create project directory if not exists
+            mkdir -p /home/${{ secrets.SERVER_USER }}/inventory-manager
             cd /home/${{ secrets.SERVER_USER }}/inventory-manager
+
             # Login to GitHub Container Registry
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             # Pull latest Docker images
             docker-compose pull
-            # Start containers
+
+            # Start containers (remove orphans)
             docker-compose up -d --remove-orphans
-            # Optional: prune old images
-            docker image prune -f
+
+            # Optional: prune only dangling images for this project
+            docker image prune -f --filter "label=project=inventory"
+
             # Show container status
             docker ps -a
-```
 
-## But First: Verify Your Secrets Are Set Correctly
-
-**Go to GitHub and check your secrets:**
-
-1. Navigate to: `https://github.com/YOUR_USERNAME/YOUR_REPO/settings/secrets/actions`
-2. You should see three secrets listed:
-   - `SERVER_HOST`
-   - `SERVER_USER`
-   - `SSH_PRIVATE_KEY`
-
-3. **Click "Update" on each one** and verify:
-
-**SERVER_HOST:**
-```
-34.171.15.20
-```
-(No quotes, no spaces, no extra lines)
-
-**SERVER_USER:**
-```
-namanjain34710
-```
-
-**SSH_PRIVATE_KEY:**
-```
------BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-QyNTUxOQAAACASv7NH+zMBqmFN4hmPm3G8lJfE+CSBRugDxYvzKBxmfwAAAJDkdGLt5HRi
-7QAAAAtzc2gtZWQyNTUxOQAAACASv7NH+zMBqmFN4hmPm3G8lJfE+CSBRugDxYvzKBxmfw
-AAAECwZhDk4MATP3gW19shdLQ8cU+vtPl+NlF5tmiFdRWznxK/s0f7MwGqYU3iGY+bcbyU
-l8T4JIFG6APFi/MoHGZ/AAAADWdpdGh1Yi1hY3Rpb24=
------END OPENSSH PRIVATE KEY-----
+            # Optional: check logs of Backend and Frontend
+            echo "=== Backend Logs ==="
+            docker logs inventory-backend || true
+            echo "=== Frontend Logs ==="
+            docker logs inventory-frontend || true
