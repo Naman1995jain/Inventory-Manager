@@ -70,7 +70,7 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
 
-      # 3️⃣ Create project folder on server (if it doesn't exist)
+      # 3️⃣ Ensure project folder exists on server
       - name: Create project folder on server
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -78,7 +78,7 @@ jobs:
           username: "${{ secrets.SERVER_USER }}"
           key: ~/.ssh/id_ed25519
           script: |
-            mkdir -p /home/${{ secrets.SERVER_USER }}/inventory-manager
+            mkdir -p /home/${{ secrets.SERVER_USER }}/Inventory-Manager
 
       # 4️⃣ Copy docker-compose.yml and .env to server
       - name: Copy docker-compose files to server
@@ -88,7 +88,7 @@ jobs:
           username: "${{ secrets.SERVER_USER }}"
           key: ~/.ssh/id_ed25519
           source: "docker-compose.yml,.env"
-          target: "/home/${{ secrets.SERVER_USER }}/inventory-manager"
+          target: "/home/${{ secrets.SERVER_USER }}/Inventory-Manager"
 
       # 5️⃣ Deploy using SSH
       - name: Deploy to Production
@@ -99,7 +99,7 @@ jobs:
           key: ~/.ssh/id_ed25519
           script: |
             set -e
-            cd /home/${{ secrets.SERVER_USER }}/inventory-manager
+            cd /home/${{ secrets.SERVER_USER }}/Inventory-Manager
 
             # Login to GitHub Container Registry
             echo "${GITHUB_TOKEN}" | docker login ghcr.io -u $USER --password-stdin
