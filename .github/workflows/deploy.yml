@@ -85,7 +85,7 @@ jobs:
             mkdir -p ~/inventory-manager
             cd ~/inventory-manager
 
-            # Login to GHCR
+            # Login to GitHub Container Registry
             echo "${GITHUB_TOKEN}" | docker login ghcr.io -u $USER --password-stdin
 
             # Pull latest images
