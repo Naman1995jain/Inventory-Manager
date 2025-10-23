@@ -1,22 +1,18 @@
 name: CI/CD Deploy to Production
-
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
       # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
-
       # 2️⃣ Set lowercase repository owner for GHCR
       - name: Set lowercase repository owner
         id: lowercase
@@ -24,7 +20,6 @@ jobs:
           lower_owner=$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
           echo "owner=$lower_owner" >> $GITHUB_OUTPUT
           echo "Lowercase owner: $lower_owner"
-
       # 3️⃣ Login to GitHub Container Registry
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -32,7 +27,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       # 4️⃣ Build & push Backend Docker image
       - name: Build and push Backend Docker image
         uses: docker/build-push-action@v5
@@ -41,7 +35,6 @@ jobs:
           push: true
           tags: ghcr.io/${{ steps.lowercase.outputs.owner }}/inventory-backend:latest
           target: production
-
       # 5️⃣ Build & push Frontend Docker image
       - name: Build and push Frontend Docker image
         uses: docker/build-push-action@v5
@@ -52,33 +45,51 @@ jobs:
           target: production
           build-args: |
             API_URL=${{ secrets.API_URL }}
-
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     environment: production
-
     steps:
-      # 1️⃣ Checkout repository (optional)
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      # 2️⃣ Setup SSH Key and test connection
+      
+      # 2️⃣ Debug: Check secret values (length only, for security)
+      - name: Debug secrets
+        run: |
+          echo "SERVER_HOST length: ${#SERVER_HOST}"
+          echo "SERVER_USER length: ${#SERVER_USER}"
+          echo "SSH_PRIVATE_KEY length: ${#SSH_PRIVATE_KEY}"
+          echo "Testing if SERVER_HOST is empty: '${SERVER_HOST}'"
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      # 3️⃣ Setup SSH Key
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          # Save private key from secret and remove any Windows line endings
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 700 ~/.ssh
+          
+          # Write SSH private key
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-
-          # Add server to known_hosts to avoid host verification prompt
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-
-          # Test SSH connection
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection works!'"
+          
+          # Add server to known_hosts
+          echo "Adding $SERVER_HOST to known_hosts..."
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts 2>&1 || echo "ssh-keyscan failed"
+          
+          # Test connection
+          echo "Testing SSH connection to $SERVER_USER@$SERVER_HOST..."
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no "$SERVER_USER@$SERVER_HOST" "echo 'SSH connection works!'" || echo "SSH test failed"
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         shell: bash
-
-      # 3️⃣ Copy docker-compose.yml and .env to server
+      
+      # 4️⃣ Copy docker-compose.yml and .env to server
       - name: Copy docker-compose files to server
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -87,8 +98,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml,.env"
           target: "/home/${{ secrets.SERVER_USER }}/inventory-manager"
-
-      # 4️⃣ Deploy using SSH
+      
+      # 5️⃣ Deploy using SSH
       - name: Deploy to Production
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -98,18 +109,13 @@ jobs:
           script: |
             set -e
             cd /home/${{ secrets.SERVER_USER }}/inventory-manager
-
             # Login to GitHub Container Registry
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
             # Pull latest Docker images
             docker-compose pull
-
             # Start containers
             docker-compose up -d --remove-orphans
-
             # Optional: prune old images
             docker image prune -f
-
             # Show container status
             docker ps -a
