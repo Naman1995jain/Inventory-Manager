@@ -53,13 +53,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      # 2️⃣ Setup SSH key from base64
-      - name: Setup SSH key
+      # 2️⃣ Decode SSH key
+      - name: Decode SSH key
+        id: ssh_key
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
+          echo "key_content<<EOF" >> $GITHUB_OUTPUT
+          cat /tmp/ssh_key >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          rm /tmp/ssh_key
       
       # 3️⃣ Create project folder on server
       - name: Create project folder on server
@@ -67,7 +69,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          key_path: ~/.ssh/id_ed25519
+          key: ${{ steps.ssh_key.outputs.key_content }}
           script: |
             mkdir -p /home/namanjain34710/Inventory-Manager
       
@@ -77,7 +79,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          key_path: ~/.ssh/id_ed25519
+          key: ${{ steps.ssh_key.outputs.key_content }}
           source: "docker-compose.yml,.env"
           target: "/home/namanjain34710/Inventory-Manager"
       
@@ -87,7 +89,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          key_path: ~/.ssh/id_ed25519
+          key: ${{ steps.ssh_key.outputs.key_content }}
           script: |
             set -e
             cd /home/namanjain34710/Inventory-Manager
