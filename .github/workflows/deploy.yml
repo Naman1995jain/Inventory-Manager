@@ -1,32 +1,34 @@
 name: CI/CD Deploy to Production
+
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    
     steps:
-      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
-      # 2️⃣ Set lowercase repository owner for GHCR
+      
       - name: Set lowercase repository owner
         id: lowercase
         run: |
           lower_owner=$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
           echo "owner=$lower_owner" >> $GITHUB_OUTPUT
-      # 3️⃣ Login to GitHub Container Registry
+      
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      # 4️⃣ Build & push Backend Docker image
+      
       - name: Build and push Backend Docker image
         uses: docker/build-push-action@v5
         with:
@@ -34,7 +36,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ steps.lowercase.outputs.owner }}/inventory-backend:latest
           target: production
-      # 5️⃣ Build & push Frontend Docker image
+      
       - name: Build and push Frontend Docker image
         uses: docker/build-push-action@v5
         with:
@@ -44,57 +46,50 @@ jobs:
           target: production
           build-args: |
             API_URL=${{ secrets.API_URL }}
+
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    environment: production
+    
     steps:
-      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      # 2️⃣ Create project folder on server
-      - name: Create project folder on server
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          script: |
-            mkdir -p /home/namanjain34710/Inventory-Manager
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: 'placeholder'
       
-      # 3️⃣ Copy docker-compose.yml and .env to server
-      - name: Copy docker-compose files to server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          source: "docker-compose.yml,.env"
-          target: "/home/namanjain34710/Inventory-Manager"
+      - name: Add known hosts
+        run: ssh-keyscan -H 34.171.15.20 >> ~/.ssh/known_hosts
       
-      # 4️⃣ Deploy using SSH
-      - name: Deploy to Production
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          script: |
+      - name: Test SSH connection
+        run: ssh namanjain34710@34.171.15.20 "echo 'SSH connection successful'"
+      
+      - name: Create project folder
+        run: ssh namanjain34710@34.171.15.20 "mkdir -p /home/namanjain34710/Inventory-Manager"
+      
+      - name: Copy docker-compose files
+        run: scp docker-compose.yml .env namanjain34710@34.171.15.20:/home/namanjain34710/Inventory-Manager/
+      
+      - name: Deploy application
+        run: |
+          ssh namanjain34710@34.171.15.20 bash << 'ENDSSH'
             set -e
             cd /home/namanjain34710/Inventory-Manager
-            # Login to GitHub Container Registry
+            
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            # Pull latest Docker images
             docker compose pull
-            # Start containers
             docker compose up -d --remove-orphans
-            # Optional: prune dangling images
             docker image prune -f
-            # Show container status
+            
+            echo "=== Container Status ==="
             docker ps -a
-            # Optional: view logs
+            
             echo "=== Backend Logs ==="
-            docker logs inventory-backend || true
+            docker logs inventory-backend --tail 50 || true
+            
             echo "=== Frontend Logs ==="
-            docker logs inventory-frontend || true
+            docker logs inventory-frontend --tail 50 || true
+          ENDSSH
