@@ -1,95 +1,30 @@
-name: CI/CD Deploy to Production
+name: CI/CD Deployment
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Set lowercase repository owner
-        id: lowercase
-        run: |
-          lower_owner=$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
-          echo "owner=$lower_owner" >> $GITHUB_OUTPUT
-      
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Build and push Backend Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Backend
-          push: true
-          tags: ghcr.io/${{ steps.lowercase.outputs.owner }}/inventory-backend:latest
-          target: production
-      
-      - name: Build and push Frontend Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Frontend
-          push: true
-          tags: ghcr.io/${{ steps.lowercase.outputs.owner }}/inventory-frontend:latest
-          target: production
-          build-args: |
-            API_URL=${{ secrets.API_URL }}
-
   deploy:
-    needs: build-and-push
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
-      
-      - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          known_hosts: 'placeholder'
-      
-      - name: Add known hosts
-        run: ssh-keyscan -H 34.171.15.20 >> ~/.ssh/known_hosts
-      
-      - name: Test SSH connection
-        run: ssh namanjain34710@34.171.15.20 "echo 'SSH connection successful'"
-      
-      - name: Create project folder
-        run: ssh namanjain34710@34.171.15.20 "mkdir -p /home/namanjain34710/Inventory-Manager"
-      
-      - name: Copy docker-compose files
-        run: scp docker-compose.yml .env namanjain34710@34.171.15.20:/home/namanjain34710/Inventory-Manager/
-      
-      - name: Deploy application
+
+      - name: Setup SSH
         run: |
-          ssh namanjain34710@34.171.15.20 bash << 'ENDSSH'
-            set -e
-            cd /home/namanjain34710/Inventory-Manager
-            
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker compose pull
-            docker compose up -d --remove-orphans
-            docker image prune -f
-            
-            echo "=== Container Status ==="
-            docker ps -a
-            
-            echo "=== Backend Logs ==="
-            docker logs inventory-backend --tail 50 || true
-            
-            echo "=== Frontend Logs ==="
-            docker logs inventory-frontend --tail 50 || true
-          ENDSSH
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Google Cloud VM
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            cd /Inventory-Manager
+            git pull origin main
+            docker-compose down
+            docker-compose up -d --build
+          EOF
