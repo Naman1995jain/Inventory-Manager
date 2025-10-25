@@ -16,7 +16,7 @@ RUN npm ci
 COPY . .
 
 # Set build-time environment variables
-ARG API_URL=http://34.171.15.20:8000/api/v1
+ARG API_URL=http://34.67.180.221:8000/api/v1
 ARG NEXT_PUBLIC_API_URL
 ENV API_URL=$API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-$API_URL}
@@ -52,7 +52,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=10s --retries=3 \
-    CMD curl -f http://34.171.15.20:3000/api/health || curl -f http://34.171.15.20:3000/ || exit 1
+    CMD curl -f http://34.67.180.221:3000/api/health || curl -f http://34.67.180.221:3000/ || exit 1
 
 # Start the application with proper signal handling
 CMD ["dumb-init", "node", "server.js"]
