@@ -21,10 +21,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push images
+      - name: Build and push Docker images
         run: |
-          docker-compose -f docker-compose.yml build
-          docker-compose -f docker-compose.yml push
+          docker compose -f docker-compose.yml build
+          docker compose -f docker-compose.yml push
 
   deploy:
     runs-on: ubuntu-latest
@@ -40,12 +40,12 @@ jobs:
       - name: Deploy to server
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            cd /Inventory-Manager
+            cd /Inventory-Manager || exit
             echo "Pulling latest images..."
-            docker-compose pull
+            docker compose pull
             echo "Stopping existing containers..."
-            docker-compose down
+            docker compose down
             echo "Starting containers..."
-            docker-compose up -d
+            docker compose up -d
             echo "Deployment completed!"
           EOF
