@@ -45,7 +45,7 @@ export default function BooksPage() {
     try {
       setLoading(true);
       setIsSearching(true);
-      const response = await fetch(`http://localhost:8000/api/v1/scraped-products/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`http://34.67.180.221:8000/api/v1/scraped-products/search?query=${encodeURIComponent(query)}`);
       
       if (!response.ok) {
         throw new Error('Failed to search books');
@@ -68,7 +68,7 @@ export default function BooksPage() {
     try {
       setLoading(true);
       setIsSearching(false);
-      const response = await fetch(`http://localhost:8000/api/v1/scraped-products/?page=${pageNum}&page_size=20`);
+      const response = await fetch(`http://34.67.180.221:8000/api/v1/scraped-products/?page=${pageNum}&page_size=20`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch books');
