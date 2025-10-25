@@ -10,21 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      # Step 1: Checkout your repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Step 2: Setup SSH key for server
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to Google Cloud VM
+      # Step 3: Optional - Test SSH connection (can remove later)
+      - name: Test SSH connection
+        run: ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} exit 0
+
+      # Step 4: Deploy to server
+      - name: Deploy to server
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             cd /Inventory-Manager
+            echo "Pulling latest code..."
+            git reset --hard
+            git clean -fd
             git pull origin main
+            echo "Stopping existing containers..."
             docker-compose down
+            echo "Building and starting containers..."
             docker-compose up -d --build
+            echo "Deployment completed!"
           EOF
