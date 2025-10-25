@@ -71,7 +71,7 @@ export default function Landing() {
           </div>
           
           <h1 className="text-5xl sm:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 leading-tight mb-6">
-            Welcome to Our 
+            Welcome to Our new project
           </h1>
           
           <p className="text-xl sm:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
