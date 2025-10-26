@@ -40,4 +40,6 @@ jobs:
             echo "Building and starting containers..."
             docker compose up -d --build
             echo "Deployment completed!"
+            docker image prune
+            echo "clear all none image and also clear space"
           EOF
