@@ -76,7 +76,6 @@ export default function Landing() {
           
           <p className="text-xl sm:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
             Discover amazing test Boks ok and manage your inventory efficiently — all in one place.
-            Discover amazing test Bok ok and manage your inventory efficiently — all in one place.
           </p>
 
           <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
