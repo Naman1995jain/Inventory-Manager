@@ -4,37 +4,17 @@ on:
   push:
     branches:
       - main
-      - frontend
-      - backend
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
+      # Step 1: Checkout your repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Determine which service to build
-      - name: Determine build target
-        id: build_target
-        run: |
-          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-          echo "Branch: $BRANCH_NAME"
-          
-          if [ "$BRANCH_NAME" = "frontend" ]; then
-            echo "service=frontend" >> $GITHUB_OUTPUT
-            echo "Building only FRONTEND"
-          elif [ "$BRANCH_NAME" = "backend" ]; then
-            echo "service=backend" >> $GITHUB_OUTPUT
-            echo "Building only BACKEND"
-          else
-            echo "service=all" >> $GITHUB_OUTPUT
-            echo "Building ALL services (main branch)"
-          fi
-
-      # Step 3: Setup SSH key
+      # Step 2: Setup SSH key for server
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -42,138 +22,22 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      # Step 4: Test SSH connection
+      # Step 3: Optional - Test SSH connection (can remove later)
       - name: Test SSH connection
         run: ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} exit 0
 
-      # Step 5: Deploy to server with selective building
+      # Step 4: Deploy to server
       - name: Deploy to server
-        env:
-          BUILD_SERVICE: ${{ steps.build_target.outputs.service }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'ENDSSH'
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             cd /Inventory-Manager
-            
-            echo "========================================="
-            echo "Service to build: '"$BUILD_SERVICE"'"
-            echo "Branch: '"${GITHUB_REF#refs/heads/}"'"
-            echo "========================================="
-            
             echo "Pulling latest code..."
             git reset --hard
             git clean -fd
-            git pull origin ${GITHUB_REF#refs/heads/}
-            
-            if [ "$BUILD_SERVICE" = "frontend" ]; then
-              echo "🔵 Stopping frontend container..."
-              docker compose stop frontend
-              docker compose rm -f frontend
-              
-              echo "🔨 Building FRONTEND image..."
-              docker compose build frontend
-              
-              echo "🚀 Starting FRONTEND container..."
-              docker compose up -d frontend
-              
-              echo "✅ Frontend deployment completed!"
-              echo "ℹ️  Backend and Postgres remain unchanged"
-              
-            elif [ "$BUILD_SERVICE" = "backend" ]; then
-              echo "🔵 Stopping backend container..."
-              docker compose stop backend
-              docker compose rm -f backend
-              
-              echo "🔨 Building BACKEND image..."
-              docker compose build backend
-              
-              echo "🚀 Starting BACKEND container..."
-              docker compose up -d backend
-              
-              echo "✅ Backend deployment completed!"
-              echo "ℹ️  Frontend and Postgres remain unchanged"
-              
-            else
-              echo "🔵 Stopping all containers..."
-              docker compose down
-              
-              echo "🔨 Building ALL services..."
-              docker compose build
-              
-              echo "🚀 Starting ALL containers..."
-              docker compose up -d
-              
-              echo "✅ Full deployment completed!"
-            fi
-            
-            echo "========================================="
-            echo "📊 Current running containers:"
-            docker ps --filter "network=inventory-network" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "NAME|inventory"
-            echo "========================================="
-            
-            echo "💾 Docker images:"
-            docker images | grep -E "REPOSITORY|inventory"
-            echo "========================================="
-          ENDSSH
-
-      # Step 6: Verify deployment
-      - name: Verify deployment
-        env:
-          BUILD_SERVICE: ${{ steps.build_target.outputs.service }}
-        run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'ENDSSH'
-            cd /Inventory-Manager
-            
-            echo "🔍 Checking container health status..."
-            docker compose ps
-            
-            # Wait for containers to stabilize
-            echo "⏳ Waiting 15 seconds for containers to stabilize..."
-            sleep 15
-            
-            # Function to check container health
-            check_container() {
-              CONTAINER_NAME=$1
-              if docker ps --filter "name=$CONTAINER_NAME" --filter "status=running" | grep -q "$CONTAINER_NAME"; then
-                echo "✅ $CONTAINER_NAME is running"
-                
-                # Check health status if available
-                HEALTH=$(docker inspect --format='{{.State.Health.Status}}' $CONTAINER_NAME 2>/dev/null || echo "no-healthcheck")
-                if [ "$HEALTH" != "no-healthcheck" ]; then
-                  echo "   Health status: $HEALTH"
-                fi
-                return 0
-              else
-                echo "❌ $CONTAINER_NAME is NOT running"
-                echo "📋 Container logs:"
-                docker logs --tail 50 $CONTAINER_NAME
-                return 1
-              fi
-            }
-            
-            # Check based on what was deployed
-            DEPLOYMENT_FAILED=0
-            
-            if [ "$BUILD_SERVICE" = "frontend" ] || [ "$BUILD_SERVICE" = "all" ]; then
-              check_container "inventory-frontend" || DEPLOYMENT_FAILED=1
-            fi
-            
-            if [ "$BUILD_SERVICE" = "backend" ] || [ "$BUILD_SERVICE" = "all" ]; then
-              check_container "inventory-backend" || DEPLOYMENT_FAILED=1
-            fi
-            
-            if [ "$BUILD_SERVICE" = "all" ]; then
-              check_container "inventory-postgres" || DEPLOYMENT_FAILED=1
-            fi
-            
-            echo ""
-            echo "========================================="
-            if [ $DEPLOYMENT_FAILED -eq 0 ]; then
-              echo "🎉 Deployment verification PASSED!"
-              echo "========================================="
-              exit 0
-            else
-              echo "🚨 Deployment verification FAILED!"
-              echo "========================================="
-              exit 1
-            fi
-          ENDSSH
+            git pull origin main
+            echo "Stopping existing containers..."
+            docker compose down
+            echo "Building and starting containers..."
+            docker compose up -d --build
+            echo "Deployment completed!"
+          EOF
